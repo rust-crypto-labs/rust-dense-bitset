@@ -180,7 +180,7 @@ impl Not for DenseBitSet {
 impl Shl<usize> for DenseBitSet {
     type Output = Self;
     fn shl(self, rhs: usize) -> Self {
-        if rhs > 64 {
+        if rhs >= 64 {
             Self { state: 0 }
         } else {
             Self {
@@ -192,7 +192,7 @@ impl Shl<usize> for DenseBitSet {
 
 impl ShlAssign<usize> for DenseBitSet {
     fn shl_assign(&mut self, rhs: usize) {
-        if rhs > 64 {
+        if rhs >= 64 {
             self.reset();
         } else {
             self.state <<= rhs;
@@ -203,7 +203,7 @@ impl ShlAssign<usize> for DenseBitSet {
 impl Shr<usize> for DenseBitSet {
     type Output = Self;
     fn shr(self, rhs: usize) -> Self {
-        if rhs > 64 {
+        if rhs >= 64 {
             Self { state: 0 }
         } else {
             Self {
@@ -215,7 +215,7 @@ impl Shr<usize> for DenseBitSet {
 
 impl ShrAssign<usize> for DenseBitSet {
     fn shr_assign(&mut self, rhs: usize) {
-        if rhs > 64 {
+        if rhs >= 64 {
             self.reset();
         } else {
             self.state >>= rhs;
