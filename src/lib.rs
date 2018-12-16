@@ -54,6 +54,24 @@ impl DenseBitSet {
         }
     }
 
+    /// Returns nothing, mutates the DenseBitSet to insert a value at the given `position` with given `length` (little endian convention)
+    /// if length is greater than the value's length, this will add the difference in size as zeros to the left of value
+    pub fn insert(&mut self, position: usize, length: usize, value: u64) {
+        assert!(
+            position + length <= 64,
+            "This implementation is currently limited to 64 bit bitsets."
+        );
+        assert!(length > 0, "Cannot insert zero-width slice");
+        if length < 64 {
+            let mut u = u64::max_value();
+            u ^= ((1 << length) - 1) << position;
+            self.state &= u;
+            self.state |= value << position;
+        } else {
+            self.state = value;
+        }
+    }
+
     /// Returns true if all bits are set to true
     pub fn all(&self) -> bool {
         self.state == u64::max_value()
@@ -313,6 +331,34 @@ mod tests {
     fn catch_extract_overflow() {
         let bs = DenseBitSet::from_integer(1234567890);
         let _r = bs.extract(12, 55); // Should panic: 12+55 exceeds the 64 bit boundary
+    }
+
+    #[test]
+    fn full_insert() {
+        let mut bs = DenseBitSet::from_integer(1234567890);
+        bs.insert(0, 64, 9876);
+        assert_eq!(bs.to_integer(), 9876);
+    }
+
+    #[test]
+    fn partial_insert() {
+        let mut bs = DenseBitSet::from_integer(0b11101101010100011001);
+        bs.insert(12, 2, 0b10);
+        assert_eq!(bs.to_integer(), 0b11101110010100011001)
+    }
+
+    #[test]
+    #[should_panic]
+    fn catch_insert_zero_width() {
+        let mut bs = DenseBitSet::from_integer(1234567890);
+        bs.insert(0, 0, 12); // Should panic: 0 is passed as 2nd argument
+    }
+
+    #[test]
+    #[should_panic]
+    fn catch_insert_overflow() {
+        let mut bs = DenseBitSet::from_integer(1234567890);
+        bs.insert(12, 55, 79885); // Should panic: 12+55 exceeds the 64 bit boundary
     }
 
     #[test]
