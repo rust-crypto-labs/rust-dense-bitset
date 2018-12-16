@@ -3,4 +3,8 @@ name = "rust-dense-bitset"
 version = "0.1.0"
 edition = "2018"
 
+[lib]
+name = "densebitset"
+path = "src/lib.rs"
+
 [dependencies]
