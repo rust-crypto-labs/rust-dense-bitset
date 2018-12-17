@@ -136,7 +136,7 @@ impl fmt::Debug for DenseBitSet {
         let mut bss = String::new();
 
         for i in 0..64 {
-            bss += if self.get_bit(i) { "1" } else { "0" };
+            bss += if self.get_bit(63-i) { "1" } else { "0" };
         }
 
         write!(f, "0b{} ({})", bss, self.to_integer())
