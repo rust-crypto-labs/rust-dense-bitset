@@ -59,10 +59,10 @@ impl BitSet for DenseBitSetExtended {
         if idx >= self.state.len() {
             if value {
                 // This triggers a resize, we only do it if we need to insert a 1
-                for _ in 0..(self.state.len() - idx) {
-                self.state.push(0);
-              }
-              self.state[idx] |= 1 << offset
+                for _ in 0..=(idx - self.state.len()) {
+                    self.state.push(0);
+                }
+                self.state[idx] |= 1 << offset
             }
             // To insert a zero, we do nothing, as the value is zero by default
         }
