@@ -120,7 +120,7 @@ impl fmt::Debug for DenseBitSetExtended {
 impl Not for DenseBitSetExtended {
     type Output = Self;
     fn not(self) -> Self {
-        let mut inv = Self{ state: vec![] };
+        let mut inv = Self{ state: Vec::with_capacity(self.state.len()) };
         for i in 0..self.state.len() {
             inv.state.push(!self.state[i])
         }
