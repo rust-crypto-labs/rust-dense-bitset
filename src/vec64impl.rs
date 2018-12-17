@@ -116,3 +116,14 @@ impl fmt::Debug for DenseBitSetExtended {
         write!(f, "0b{}", bss)
     }
 }
+
+impl Not for DenseBitSetExtended {
+    type Output = Self;
+    fn not(self) -> Self {
+        let mut inv = Self{ state: vec![] };
+        for i in 0..self.state.len() {
+            inv.state.push(!self.state[i])
+        }
+        inv
+    }
+}
