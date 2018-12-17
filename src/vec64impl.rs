@@ -15,6 +15,14 @@ pub struct DenseBitSetExtended {
 }
 
 impl DenseBitSetExtended {
+
+    /// Returns a preallocated Extended Dense Bitset of size 64*size
+    pub fn with_capacity(size: usize) -> Self {
+        assert!(size < 1000, "(Temporary?) We don't allow bitsets larger than 64k for now.");
+        let state : Vec<u64> = Vec::with_capacity(size);
+        Self { state: state }
+    }
+
     /// Returns true if all bits are set to true
     pub fn all(&self) -> bool {
         for s in self.state.iter() {
@@ -51,10 +59,10 @@ impl BitSet for DenseBitSetExtended {
         if idx >= self.state.len() {
             if value {
                 // This triggers a resize, we only do it if we need to insert a 1
-                for _ in 0..(self.state.len() - idx) {
-                self.state.push(0);
-              }
-              self.state[idx] |= 1 << offset
+                for _ in 0..=(idx - self.state.len()) {
+                    self.state.push(0);
+                }
+                self.state[idx] |= 1 << offset
             }
             // To insert a zero, we do nothing, as the value is zero by default
         }
@@ -93,5 +101,29 @@ impl BitSet for DenseBitSetExtended {
         for i in 0..self.state.len() {
             self.state[i] = !self.state[i]
         }
+    }
+}
+
+impl fmt::Debug for DenseBitSetExtended {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut bss = String::new();
+
+        for i in 0..self.state.len() {
+            for j in 0..64 {
+                bss+= if self.get_bit((self.state.len()-i-1)*64+(63-j)) { "1" } else { "0" };
+            }
+        }
+        write!(f, "0b{}", bss)
+    }
+}
+
+impl Not for DenseBitSetExtended {
+    type Output = Self;
+    fn not(self) -> Self {
+        let mut inv = Self{ state: Vec::with_capacity(self.state.len()) };
+        for i in 0..self.state.len() {
+            inv.state.push(!self.state[i])
+        }
+        inv
     }
 }
