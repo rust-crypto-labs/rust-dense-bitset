@@ -15,6 +15,14 @@ pub struct DenseBitSetExtended {
 }
 
 impl DenseBitSetExtended {
+
+    /// Returns a preallocated Extended Dense Bitset of size 64*size
+    pub fn with_capacity(size: usize) -> Self {
+        assert!(size < 1000, "(Temporary?) We don't allow bitsets larger than 64k for now.");
+        let state : Vec<u64> = Vec::with_capacity(size);
+        Self { state: state }
+    }
+
     /// Returns true if all bits are set to true
     pub fn all(&self) -> bool {
         for s in self.state.iter() {
