@@ -103,3 +103,16 @@ impl BitSet for DenseBitSetExtended {
         }
     }
 }
+
+impl fmt::Debug for DenseBitSetExtended {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut bss = String::new();
+
+        for i in 0..self.state.len() {
+            for j in 0..64 {
+                bss+= if self.get_bit((self.state.len()-i-1)*64+(63-j)) { "1" } else { "0" };
+            }
+        }
+        write!(f, "0b{}", bss)
+    }
+}
