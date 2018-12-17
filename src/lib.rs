@@ -34,6 +34,14 @@ impl DenseBitSet {
         Self { state: i }
     }
 
+    /// Generates a bitset from a string and a base (little endian convention)
+    pub fn from_string(s: &str, base: u32) -> Self {
+        assert!( 2 <= base && base <= 32, "Only supports base from 2 to 32");
+        let val = u64::from_str_radix(s,base);
+        let res: u64 = val.expect("Failed to parse string");
+        Self { state: res }
+    }
+
     /// Returns an integer representing the bitset (little endian convention)
     pub fn to_integer(&self) -> u64 {
         self.state
@@ -244,6 +252,29 @@ impl ShrAssign<usize> for DenseBitSet {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_from_string(){
+        let bs1 = DenseBitSet::from_string("101110001", 2);
+        let bs2 = DenseBitSet::from_string("FFFFF", 16);
+        let bs3 = DenseBitSet::from_string("123465", 10);
+
+        assert_eq!(bs1.to_integer(),0b101110001);
+        assert_eq!(bs2.to_integer(),0xfffff);
+        assert_eq!(bs3.to_integer(),123465);
+    }
+
+    #[test]
+    #[should_panic]
+    fn catch_invalid_string(){
+        let _bs = DenseBitSet::from_string("Hello World!", 12);
+    }
+
+    #[test]
+    #[should_panic]
+    fn catch_invalid_base(){
+        let _bs = DenseBitSet::from_string("AZRZR=", 64);
+    }
 
     #[test]
     fn no_crash_on_insertion() {
