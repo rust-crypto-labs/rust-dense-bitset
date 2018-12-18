@@ -17,10 +17,10 @@ pub struct DenseBitSetExtended {
 
 impl DenseBitSetExtended {
 
-    /// Returns a preallocated Extended Dense Bitset of size 64*`size`
+    /// Returns a preallocated Extended Dense Bitset of `size` bits
     pub fn with_capacity(size: usize) -> Self {
-        assert!(size < 1000, "(Temporary?) We don't allow bitsets larger than 64k for now.");
-        let state : Vec<u64> = Vec::with_capacity(size);
+        assert!(size < 64_000, "(Temporary?) We don't allow bitsets larger than 64k for now.");
+        let state : Vec<u64> = Vec::with_capacity(1 + (size >> 6));
         Self { state: state }
     }
 
@@ -245,5 +245,21 @@ impl Shr<usize> for DenseBitSetExtended {
 
             v
         }
+    }
+}
+
+
+impl Shl<usize> for DenseBitSetExtended {
+    type Output = Self;
+    fn shl(self, rhs: usize) -> Self {
+        let mut v = DenseBitSetExtended::with_capacity(self.state.len() + rhs);
+
+        // Note: this may not be the most efficient implementation
+        for i in 0..self.state.len() {
+            let source = i;
+            let dest = i + rhs;
+            v.set_bit( dest, self.get_bit(source) );
+        }
+        v
     }
 }

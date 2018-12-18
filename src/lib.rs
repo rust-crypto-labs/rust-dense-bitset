@@ -57,6 +57,14 @@ mod tests {
     }
 
     #[test]
+    fn no_crash_on_insertion_dbse() {
+        let mut bs = DenseBitSetExtended::with_capacity(10);
+        for i in 0..1024 {
+            bs.set_bit(i, true);
+        }
+    }
+
+    #[test]
     fn test_hamming_weight_dbs() {
         let bs1 = DenseBitSet::from_integer(0);
         let bs2 = DenseBitSet::from_integer(1234567890);
@@ -175,8 +183,8 @@ mod tests {
 
     #[test]
     fn test_equality_trait_dbse() {
-        let mut bs1 = DenseBitSetExtended::with_capacity(100);
-        let mut bs2 = DenseBitSetExtended::with_capacity(100);
+        let mut bs1 = DenseBitSetExtended::with_capacity(2000);
+        let mut bs2 = DenseBitSetExtended::with_capacity(2000);
 
         bs1.set_bit(1290, true);
         bs2.set_bit(1290, true); // The two bitsets are now equal
@@ -203,8 +211,23 @@ mod tests {
     }
 
     #[test]
+    fn test_any_dbse() {
+        let mut bs = DenseBitSetExtended::with_capacity(10);
+        bs.set_bit(1234, true);
+        assert_eq!(bs.any(), true);
+    }
+
+    #[test]
     fn test_none_dbs() {
         let bs = DenseBitSet::from_integer(0);
+        assert_eq!(bs.none(), true);
+    }
+
+    #[test]
+    fn test_none_dbse() {
+        let mut bs = DenseBitSetExtended::with_capacity(10);
+        bs.set_bit(1234, true);
+        bs.set_bit(1234, false);
         assert_eq!(bs.none(), true);
     }
 
@@ -216,13 +239,52 @@ mod tests {
         assert_eq!(bs3.to_integer(), 0b10100);
     }
 
+        #[test]
+    fn test_bitand_dbse() {
+        let mut bs1 = DenseBitSetExtended::with_capacity(10);
+        let mut bs2 = DenseBitSetExtended::with_capacity(10);
+
+        bs1.set_bit(1, true);
+        bs1.set_bit(70, true);
+        bs1.set_bit(72, true);
+        bs1.set_bit(74, true);
+        bs2.set_bit(1, true);
+        bs2.set_bit(2, true);
+        bs2.set_bit(72, true);
+        bs2.set_bit(73, true);
+        bs2.set_bit(74, true);
+        
+        let bs3 = bs1 & bs2;
+        assert_eq!(bs3.to_string(), "00000000000000000000000000000000000000000000000000000101000000000000000000000000000000000000000000000000000000000000000000000010");
+    }
+
     #[test]
     fn test_bitand_assign_dbs() {
         let bs1 = DenseBitSet::from_integer(0b11000);
         let mut bs2 = DenseBitSet::from_integer(0b1001);
         bs2 &= bs1;
         assert_eq!(bs2.to_integer(), 0b1000);
+    }   
+
+    #[test]
+    fn test_bitand_assign_dbse() {
+        let mut bs1 = DenseBitSetExtended::with_capacity(10);
+        let mut bs2 = DenseBitSetExtended::with_capacity(10);
+
+        bs1.set_bit(1, true);
+        bs1.set_bit(70, true);
+        bs1.set_bit(72, true);
+        bs1.set_bit(74, true);
+        bs2.set_bit(1, true);
+        bs2.set_bit(2, true);
+        bs2.set_bit(72, true);
+        bs2.set_bit(73, true);
+        bs2.set_bit(74, true);
+        bs2 &= bs1;
+
+        assert_eq!(bs2.to_string(), "00000000000000000000000000000000000000000000000000000101000000000000000000000000000000000000000000000000000000000000000000000010");
     }
+ 
 
     #[test]
     fn test_bitor_dbs() {
@@ -231,6 +293,27 @@ mod tests {
         let bs3 = bs1 | bs2;
         assert_eq!(bs3.to_integer(), 0b11101);
     }
+
+    #[test]
+    fn test_bitor_dbse() {
+        let mut bs1 = DenseBitSetExtended::with_capacity(10);
+        let mut bs2 = DenseBitSetExtended::with_capacity(10);
+
+        bs1.set_bit(1, true);
+        bs1.set_bit(70, true);
+        bs1.set_bit(72, true);
+        bs1.set_bit(74, true);
+        bs2.set_bit(1, true);
+        bs2.set_bit(2, true);
+        bs2.set_bit(72, true);
+        bs2.set_bit(73, true);
+        bs2.set_bit(74, true);
+        
+        let bs3 = bs2 | bs1;
+
+        assert_eq!(bs3.to_string(), "00000000000000000000000000000000000000000000000000000111010000000000000000000000000000000000000000000000000000000000000000000110");
+    }
+
 
     #[test]
     fn test_bitor_assign_dbs() {
@@ -246,6 +329,26 @@ mod tests {
         let bs2 = DenseBitSet::from_integer(0b11100);
         let bs3 = bs1 ^ bs2;
         assert_eq!(bs3.to_integer(), 0b1001);
+    }
+
+    #[test]
+    fn test_bitxor_dbse() {
+        let mut bs1 = DenseBitSetExtended::with_capacity(10);
+        let mut bs2 = DenseBitSetExtended::with_capacity(10);
+
+        bs1.set_bit(1, true);
+        bs1.set_bit(70, true);
+        bs1.set_bit(72, true);
+        bs1.set_bit(74, true);
+        bs2.set_bit(1, true);
+        bs2.set_bit(2, true);
+        bs2.set_bit(72, true);
+        bs2.set_bit(73, true);
+        bs2.set_bit(74, true);
+        
+        let bs3 = bs2 ^ bs1;
+
+        assert_eq!(bs3.to_string(), "00000000000000000000000000000000000000000000000000000010010000000000000000000000000000000000000000000000000000000000000000000100");
     }
 
     #[test]
