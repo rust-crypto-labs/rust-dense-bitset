@@ -19,6 +19,8 @@ pub struct DenseBitSetExtended {
 }
 
 impl DenseBitSetExtended {
+
+    /// Returns a new empty extended Dense Bitset
     pub fn new() -> Self {
         let state: Vec<u64> = Vec::new();
         return Self { state, size: 0 };

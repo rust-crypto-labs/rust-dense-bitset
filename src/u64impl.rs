@@ -16,9 +16,12 @@ pub struct DenseBitSet {
 }
 
 impl DenseBitSet {
+
+    /// Returns a new empty bitset
     pub fn new() -> Self {
         Self { state: 0 }
     }
+
     /// Generates a bitset from an integer (little endian convention)
     pub fn from_integer(i: u64) -> Self {
         Self { state: i }
@@ -97,10 +100,12 @@ impl DenseBitSet {
         }
     }
 
+    /// Shifts the bits to the right by a specified amount, shift, wrapping the truncated bits to the beginning of the set
     pub fn rotr(&mut self, shift: u32) {
         self.state = self.state.rotate_right(shift);
     }
 
+    /// Shifts the bits to the left by a specified amount, shift, wrapping the truncated bits to the beginning of the set
     pub fn rotl(&mut self, shift: u32) {
         self.state = self.state.rotate_left(shift);
     }
