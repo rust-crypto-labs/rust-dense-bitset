@@ -11,6 +11,13 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_reverse_dbs() {
+        let bs = DenseBitSet::from_integer(666123);
+        let srev = bs.to_string().chars().rev().collect::<String>();
+        assert_eq!(srev, bs.reverse().to_string());
+    }
+
+    #[test]
     fn test_to_string_dbs() {
         let bs1 = DenseBitSet::from_integer(7891234);
         let bs2 = DenseBitSet::from_integer(65536);

@@ -85,6 +85,16 @@ impl DenseBitSet {
     pub fn none(&self) -> bool {
         self.state == 0
     }
+
+    /// Returns a bit-reversed bitset
+    pub fn reverse(self) -> Self {
+        let mut v = self.state;
+        v = ((v >> 1) & (0x5555555555555555 as u64)) | ((v & (0x5555555555555555 as u64)) << 1);
+        v = ((v >> 2) & (0x3333333333333333 as u64)) | ((v & (0x3333333333333333 as u64)) << 2);
+        v = ((v >> 4) & (0x0F0F0F0F0F0F0F0F as u64)) | ((v & (0x0F0F0F0F0F0F0F0F as u64)) << 4);
+
+        Self { state: v.swap_bytes() }
+    }
 }
 
 impl BitSet for DenseBitSet {
