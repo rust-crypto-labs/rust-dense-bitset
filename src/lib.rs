@@ -206,8 +206,10 @@ mod tests {
 
     #[test]
     fn test_any_dbs() {
-        let bs = DenseBitSet::from_integer(1234567890);
+        let mut bs = DenseBitSet::from_integer(1234567890);
         assert_eq!(bs.any(), true);
+        bs.reset();
+        assert_eq!(bs.any(), false);
     }
 
     #[test]
@@ -215,12 +217,16 @@ mod tests {
         let mut bs = DenseBitSetExtended::with_capacity(10);
         bs.set_bit(1234, true);
         assert_eq!(bs.any(), true);
+        bs.reset();
+        assert_eq!(bs.any(), false);
     }
 
     #[test]
     fn test_none_dbs() {
-        let bs = DenseBitSet::from_integer(0);
+        let mut bs = DenseBitSet::from_integer(0);
         assert_eq!(bs.none(), true);
+        bs.set_bit(3, true);
+        assert_eq!(bs.none(), false);
     }
 
     #[test]
@@ -229,6 +235,8 @@ mod tests {
         bs.set_bit(1234, true);
         bs.set_bit(1234, false);
         assert_eq!(bs.none(), true);
+        bs.set_bit(1235, true);
+        assert_eq!(bs.none(), false);
     }
 
     #[test]
