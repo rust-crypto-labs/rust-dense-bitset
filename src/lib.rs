@@ -11,6 +11,13 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_reverse_dbs() {
+        let bs = DenseBitSet::from_integer(666123);
+        let srev = bs.to_string().chars().rev().collect::<String>();
+        assert_eq!(srev, bs.reverse().to_string());
+    }
+
+    #[test]
     fn test_to_string_dbs() {
         let bs1 = DenseBitSet::from_integer(7891234);
         let bs2 = DenseBitSet::from_integer(65536);
@@ -200,14 +207,18 @@ mod tests {
 
     #[test]
     fn test_all_dbs() {
-        let bs = DenseBitSet::from_integer(u64::max_value());
+        let mut bs = DenseBitSet::from_integer(u64::max_value());
         assert_eq!(bs.all(), true);
+        bs.set_bit(3, false);
+        assert_eq!(bs.all(), false);
     }
 
     #[test]
     fn test_any_dbs() {
-        let bs = DenseBitSet::from_integer(1234567890);
+        let mut bs = DenseBitSet::from_integer(1234567890);
         assert_eq!(bs.any(), true);
+        bs.reset();
+        assert_eq!(bs.any(), false);
     }
 
     #[test]
@@ -215,12 +226,16 @@ mod tests {
         let mut bs = DenseBitSetExtended::with_capacity(10);
         bs.set_bit(1234, true);
         assert_eq!(bs.any(), true);
+        bs.reset();
+        assert_eq!(bs.any(), false);
     }
 
     #[test]
     fn test_none_dbs() {
-        let bs = DenseBitSet::from_integer(0);
+        let mut bs = DenseBitSet::from_integer(0);
         assert_eq!(bs.none(), true);
+        bs.set_bit(3, true);
+        assert_eq!(bs.none(), false);
     }
 
     #[test]
@@ -249,6 +264,8 @@ mod tests {
         bs.set_bit(1234, true);
         bs.set_bit(1234, false);
         assert_eq!(bs.none(), true);
+        bs.set_bit(1235, true);
+        assert_eq!(bs.none(), false);
     }
 
     #[test]
