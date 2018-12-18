@@ -1,6 +1,7 @@
 use crate::bitset::BitSet;
 
 use std::fmt;
+use std::hash::{Hash, Hasher};
 
 /// Overload of &, &=, |, |=, ^, ^=, !, <<, <<=, >>, >>=
 use std::ops::{
@@ -9,7 +10,7 @@ use std::ops::{
 };
 
 /// Provides an efficient and compact bitset implementation for up to 64 bits
-#[derive(Copy, Clone, Hash)]
+#[derive(Copy, Clone)]
 pub struct DenseBitSet {
     state: u64,
 }
@@ -134,6 +135,12 @@ impl PartialEq for DenseBitSet {
 }
 
 impl Eq for DenseBitSet {}
+
+impl Hash for DenseBitSet {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.state.hash(state);
+    }
+}
 
 impl BitAnd for DenseBitSet {
     type Output = Self;

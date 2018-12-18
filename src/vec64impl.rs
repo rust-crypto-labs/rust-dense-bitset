@@ -1,6 +1,8 @@
 use crate::bitset::BitSet;
 use crate::u64impl::DenseBitSet;
 
+
+use std::hash::{Hash, Hasher};
 use std::fmt;
 use std::cmp::{min, max};
 
@@ -11,7 +13,7 @@ use std::ops::{
 };
 
 /// Provides a bitset implementation (only limited by available memory)
-#[derive(Clone, Hash)]
+#[derive(Clone)]
 pub struct DenseBitSetExtended {
     state: Vec<u64>,
     size: usize,
@@ -179,6 +181,14 @@ impl PartialEq for DenseBitSetExtended {
     }
 }
 
+impl Hash for DenseBitSetExtended {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        for s in &self.state { 
+            s.hash(state);
+        }
+    }
+}
+
 impl Eq for DenseBitSetExtended {}
 
 impl Not for DenseBitSetExtended {
@@ -283,7 +293,6 @@ impl Shr<usize> for DenseBitSetExtended {
         }
     }
 }
-
 
 impl Shl<usize> for DenseBitSetExtended {
     type Output = Self;
