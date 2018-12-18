@@ -33,7 +33,11 @@ impl DenseBitSetExtended {
                 return false;
             }
         }
-        if self.state[l-1] != ((1 << (self.size % 64)) - 1 ) {
+        if self.size % 64 == 0 {
+            if self.state[l-1] != u64::max_value() {
+                return false
+            }
+        } else if self.state[l-1] != ((1 << (self.size % 64)) - 1 ) {
             return false;
         }
         true
