@@ -80,6 +80,14 @@ impl DenseBitSet {
     pub fn none(&self) -> bool {
         self.state == 0
     }
+
+    pub fn rotr(&mut self, shift: u32) {
+        self.state = self.state.rotate_right(shift);
+    }
+
+    pub fn rotl(&mut self, shift: u32) {
+        self.state = self.state.rotate_left(shift);
+    }
 }
 
 impl BitSet for DenseBitSet {

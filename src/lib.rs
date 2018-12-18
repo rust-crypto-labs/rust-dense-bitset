@@ -184,6 +184,26 @@ mod tests {
     }
 
     #[test]
+    fn test_rotr(){
+        let mut bs = DenseBitSet::from_integer(0b0001110101);
+        let bs_cp = bs;
+        bs.rotr(40);
+        assert_eq!(bs.to_integer(), 0b1110101000000000000000000000000);
+        bs.rotr(24);
+        assert_eq!(bs,bs_cp);
+    }
+
+    #[test]
+    fn test_rotl(){
+        let mut bs = DenseBitSet::from_integer(0b0001110101);
+        let bs_cp = bs;
+        bs.rotl(10);
+        assert_eq!(bs.to_integer(), 0b11101010000000000);
+        bs.rotl(54);
+        assert_eq!(bs, bs_cp);
+    }
+
+    #[test]
     fn test_bitand() {
         let bs1 = DenseBitSet::from_integer(0b10101);
         let bs2 = DenseBitSet::from_integer(0b11100);
