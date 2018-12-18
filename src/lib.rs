@@ -200,8 +200,10 @@ mod tests {
 
     #[test]
     fn test_all_dbs() {
-        let bs = DenseBitSet::from_integer(u64::max_value());
+        let mut bs = DenseBitSet::from_integer(u64::max_value());
         assert_eq!(bs.all(), true);
+        bs.set_bit(3, false);
+        assert_eq!(bs.all(), false);
     }
 
     #[test]
