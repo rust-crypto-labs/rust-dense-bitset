@@ -1,4 +1,5 @@
 # rust-dense-bitset
+[![Build Status](https://travis-ci.org/ovheurdrive/rust-dense-bitset.svg?branch=master)](https://travis-ci.org/ovheurdrive/rust-dense-bitset)
 
 Efficient and flexible bitset rust library. 
 
