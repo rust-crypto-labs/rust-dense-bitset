@@ -29,7 +29,7 @@ impl DenseBitSetExtended {
     /// Returns a DenseBitSetExtended from a given DenseBitSet
     pub fn from_dense_bitset(dbs: DenseBitSet) -> Self {
         let state = vec![dbs.to_integer()];
-        let size = 1;
+        let size = 64;
         Self { state, size }
     }
 
