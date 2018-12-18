@@ -361,10 +361,9 @@ mod tests {
 
     #[test]
     fn test_not_dbs() {
-        let mut bs1 = DenseBitSet::from_integer(1234567890);
-        let bs2 = !bs1;
-        bs1.flip();
-        assert_eq!(bs1, bs2);
+        let mut bs1 = DenseBitSet::from_integer(0b111010100011101011);
+        bs1 = !bs1;
+        assert_eq!(bs1.to_integer(), 0b1111111111111111111111111111111111111111111111000101011100010100);
     }
 
     #[test]

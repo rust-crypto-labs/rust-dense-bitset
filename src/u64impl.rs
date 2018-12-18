@@ -113,10 +113,6 @@ impl BitSet for DenseBitSet {
         self.state = 0
     }
 
-    fn flip(&mut self) {
-        self.state = !self.state
-    }
-
     fn to_string(self) -> String {
         format!("{:064b}", self.state)
     }

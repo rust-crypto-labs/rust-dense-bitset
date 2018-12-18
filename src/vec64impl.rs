@@ -134,12 +134,6 @@ impl BitSet for DenseBitSetExtended {
         self.size = 0
     }
 
-    fn flip(&mut self) {
-        for i in 0..self.state.len() {
-            self.state[i] = !self.state[i]
-        }
-    }
-
     fn to_string(self) -> String {
         if self.state.len() == 0 {
             return format!("{:064b}", 0)
@@ -194,9 +188,16 @@ impl Eq for DenseBitSetExtended {}
 impl Not for DenseBitSetExtended {
     type Output = Self;
     fn not(self) -> Self {
-        let mut inv = Self { state: Vec::with_capacity(self.state.len()), size: self.size };
-        for i in 0..self.state.len() {
+        let l = self.state.len();
+        let mut inv = Self { state: Vec::with_capacity(l), size: self.size };
+        for i in 0..l-1 {
             inv.state.push(!self.state[i])
+        }
+        if self.size % 64 == 0 {
+            inv.state.push(!self.state[l-1]);
+        }
+        else {
+            inv.state.push( (!self.state[l-1]) & ((1 << (self.size % 64)) -1) );
         }
         inv
     }
