@@ -16,6 +16,10 @@ pub struct DenseBitSet {
 }
 
 impl DenseBitSet {
+
+    pub fn new () -> Self {
+        Self { state: 0 }
+    }
     /// Generates a bitset from an integer (little endian convention)
     pub fn from_integer(i: u64) -> Self {
         Self { state: i }

@@ -21,11 +21,16 @@ pub struct DenseBitSetExtended {
 
 impl DenseBitSetExtended {
 
+    pub fn new() -> Self {
+        let state: Vec<u64> = Vec::new();
+        return Self{ state , size: 0 }
+    }
+
     /// Returns a preallocated Extended Dense Bitset of `size` bits
     pub fn with_capacity(size: usize) -> Self {
         assert!(size < 64_000, "(Temporary?) We don't allow bitsets larger than 64k for now.");
         let state : Vec<u64> = Vec::with_capacity(1 + (size >> 6));
-        Self { state: state, size: 0 }
+        Self { state, size: 0 }
     }
 
     /// Returns a DenseBitSetExtended from a given DenseBitSet
@@ -55,7 +60,7 @@ impl DenseBitSetExtended {
 
     /// Returns true if any of the bits are set to true
     pub fn any(&self) -> bool {
-        for &s in self.state.iter() {
+        for &s in &self.state {
             if s > 0 {
                 return true;
             }
@@ -116,15 +121,8 @@ impl BitSet for DenseBitSetExtended {
 
     fn get_weight(&self) -> u32 {
         let mut hw = 0;
-        let l = self.state.len();
-        for i in 0..l-1 {
-            hw += self.state[i].count_ones();
-        }
-        if self.size % 64 == 0 {
-            hw += self.state[l-1].count_ones();
-        }
-        else {
-            hw += ((self.state[l-1]) & ((1 << (self.size % 64)) -1)).count_ones();
+        for &s in &self.state {
+            hw += s.count_ones();
         }
         hw
     }
