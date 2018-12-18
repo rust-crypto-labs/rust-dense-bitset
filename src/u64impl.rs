@@ -16,8 +16,7 @@ pub struct DenseBitSet {
 }
 
 impl DenseBitSet {
-
-    pub fn new () -> Self {
+    pub fn new() -> Self {
         Self { state: 0 }
     }
     /// Generates a bitset from an integer (little endian convention)
@@ -27,8 +26,8 @@ impl DenseBitSet {
 
     /// Generates a bitset from a string and a base (little endian convention)
     pub fn from_string(s: &str, base: u32) -> Self {
-        assert!( 2 <= base && base <= 32, "Only supports base from 2 to 32");
-        let val = u64::from_str_radix(s,base);
+        assert!(2 <= base && base <= 32, "Only supports base from 2 to 32");
+        let val = u64::from_str_radix(s, base);
         let res: u64 = val.expect("Failed to parse string");
         Self { state: res }
     }
@@ -93,7 +92,9 @@ impl DenseBitSet {
         v = ((v >> 2) & (0x3333333333333333 as u64)) | ((v & (0x3333333333333333 as u64)) << 2);
         v = ((v >> 4) & (0x0F0F0F0F0F0F0F0F as u64)) | ((v & (0x0F0F0F0F0F0F0F0F as u64)) << 4);
 
-        Self { state: v.swap_bytes() }
+        Self {
+            state: v.swap_bytes(),
+        }
     }
 
     pub fn rotr(&mut self, shift: u32) {
