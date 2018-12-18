@@ -276,13 +276,13 @@ impl BitXor for DenseBitSetExtended {
 impl Shr<usize> for DenseBitSetExtended {
     type Output = Self;
     fn shr(self, rhs: usize) -> Self {
-        if rhs >= self.state.len() {
+        if rhs >= self.size {
             Self { state: vec![], size: 0 }
         } else {
-            let mut v = DenseBitSetExtended::with_capacity(self.state.len() - rhs);
+            let mut v = DenseBitSetExtended::with_capacity(self.state.len() - (rhs>>6));
 
             // Note: this may not be the most efficient implementation
-            for i in 0..self.state.len() - rhs {
+            for i in 0..=(self.size - rhs) {
                 let source = i + rhs;
                 let dest = i;
                 v.set_bit( dest, self.get_bit(source) );
@@ -296,10 +296,10 @@ impl Shr<usize> for DenseBitSetExtended {
 impl Shl<usize> for DenseBitSetExtended {
     type Output = Self;
     fn shl(self, rhs: usize) -> Self {
-        let mut v = DenseBitSetExtended::with_capacity(self.state.len() + rhs);
+        let mut v = DenseBitSetExtended::with_capacity(self.state.len() + (rhs>>6));
 
         // Note: this may not be the most efficient implementation
-        for i in 0..self.state.len() {
+        for i in 0..=self.size {
             let source = i;
             let dest = i + rhs;
             v.set_bit( dest, self.get_bit(source) );

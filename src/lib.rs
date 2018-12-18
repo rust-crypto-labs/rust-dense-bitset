@@ -376,6 +376,14 @@ mod tests {
     }
 
     #[test]
+    fn test_shl_dbse(){
+        let mut bs1 = DenseBitSetExtended::with_capacity(2);
+        bs1.set_bit(60, true);
+        let bs2 = bs1 << 46;
+        assert!(bs2.get_bit(106));
+    }
+
+    #[test]
     fn test_shl_assign_dbs() {
         let mut bs1 = DenseBitSet::from_integer(0b11000);
         bs1 <<= 6;
@@ -391,6 +399,15 @@ mod tests {
         assert_eq!(bs2.to_integer(), 0b101011111111);
         let bs3 = bs1 >> 65;
         assert!(bs3.none());
+    }
+
+    #[test]
+    fn test_shr_dbse(){
+        let mut bs1 = DenseBitSetExtended::with_capacity(2);
+        bs1.set_bit(100, true);
+        let bs2 = bs1 >> 46;
+        println!("{:?}", bs2);
+        assert!(bs2.get_bit(54));
     }
 
     #[test]
