@@ -1,6 +1,7 @@
 use crate::bitset::BitSet;
 
 use std::fmt;
+use std::hash::{Hash, Hasher};
 
 /// Overload of &, &=, |, |=, ^, ^=, !, <<, <<=, >>, >>=
 use std::ops::{
@@ -9,12 +10,16 @@ use std::ops::{
 };
 
 /// Provides an efficient and compact bitset implementation for up to 64 bits
-#[derive(Copy, Clone, Hash)]
+#[derive(Copy, Clone)]
 pub struct DenseBitSet {
     state: u64,
 }
 
 impl DenseBitSet {
+
+    pub fn new () -> Self {
+        Self { state: 0 }
+    }
     /// Generates a bitset from an integer (little endian convention)
     pub fn from_integer(i: u64) -> Self {
         Self { state: i }
@@ -112,20 +117,14 @@ impl BitSet for DenseBitSet {
         self.state = 0
     }
 
-    fn flip(&mut self) {
-        self.state = !self.state
+    fn to_string(self) -> String {
+        format!("{:064b}", self.state)
     }
 }
 
 impl fmt::Debug for DenseBitSet {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut bss = String::new();
-
-        for i in 0..64 {
-            bss += if self.get_bit(63-i) { "1" } else { "0" };
-        }
-
-        write!(f, "0b{} ({})", bss, self.to_integer())
+        write!(f, "{:64b}", self.to_integer())
     }
 }
 
@@ -136,6 +135,12 @@ impl PartialEq for DenseBitSet {
 }
 
 impl Eq for DenseBitSet {}
+
+impl Hash for DenseBitSet {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.state.hash(state);
+    }
+}
 
 impl BitAnd for DenseBitSet {
     type Output = Self;
