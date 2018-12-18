@@ -116,7 +116,12 @@ impl BitSet for DenseBitSetExtended {
         for i in 0..l-1 {
             hw += self.state[i].count_ones();
         }
-        hw += ((self.state[l-1]) & ((1 << (self.size % 64)) -1)).count_ones();
+        if self.size % 64 == 0 {
+            hw += self.state[l-1].count_ones();
+        }
+        else {
+            hw += ((self.state[l-1]) & ((1 << (self.size % 64)) -1)).count_ones();
+        }
         hw
     }
 
