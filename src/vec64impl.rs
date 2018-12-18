@@ -103,8 +103,8 @@ impl BitSet for DenseBitSetExtended {
                 self.state[idx] &= !(1 << offset)
             }
         }
-        if position > self.size {
-            self.size = position;
+        if position >= self.size {
+            self.size = position+1;
         }
     }
 
@@ -279,10 +279,10 @@ impl Shr<usize> for DenseBitSetExtended {
         if rhs >= self.size {
             Self { state: vec![], size: 0 }
         } else {
-            let mut v = DenseBitSetExtended::with_capacity(self.state.len() - (rhs>>6));
+            let mut v = DenseBitSetExtended::with_capacity(self.size - rhs);
 
             // Note: this may not be the most efficient implementation
-            for i in 0..=(self.size - rhs) {
+            for i in 0..(self.size - rhs) {
                 let source = i + rhs;
                 let dest = i;
                 v.set_bit( dest, self.get_bit(source) );
@@ -296,10 +296,10 @@ impl Shr<usize> for DenseBitSetExtended {
 impl Shl<usize> for DenseBitSetExtended {
     type Output = Self;
     fn shl(self, rhs: usize) -> Self {
-        let mut v = DenseBitSetExtended::with_capacity(self.state.len() + (rhs>>6));
+        let mut v = DenseBitSetExtended::with_capacity(self.size + rhs);
 
         // Note: this may not be the most efficient implementation
-        for i in 0..=self.size {
+        for i in 0..self.size {
             let source = i;
             let dest = i + rhs;
             v.set_bit( dest, self.get_bit(source) );
