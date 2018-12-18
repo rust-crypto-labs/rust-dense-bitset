@@ -26,6 +26,7 @@ impl DenseBitSetExtended {
         Self { state: state, size: 0 }
     }
 
+    /// Returns a DenseBitSetExtended from a given DenseBitSet
     pub fn from_dense_bitset(dbs: DenseBitSet) -> Self {
         let state = vec![dbs.to_integer()];
         let size = 1;
@@ -65,6 +66,7 @@ impl DenseBitSetExtended {
         !self.any()
     }
 
+    /// Returns the size (in bits) of the bitset
     pub fn get_size(&self) -> usize {
         self.size
     }
