@@ -13,6 +13,7 @@ use std::ops::{
 #[derive(Clone, Hash)]
 pub struct DenseBitSetExtended {
     state: Vec<u64>,
+    size: usize,
 }
 
 impl DenseBitSetExtended {
@@ -21,23 +22,27 @@ impl DenseBitSetExtended {
     pub fn with_capacity(size: usize) -> Self {
         assert!(size < 64_000, "(Temporary?) We don't allow bitsets larger than 64k for now.");
         let state : Vec<u64> = Vec::with_capacity(1 + (size >> 6));
-        Self { state: state }
+        Self { state: state, size: 0 }
     }
 
     /// Returns true if all bits are set to true
     pub fn all(&self) -> bool {
-        for s in self.state.iter() {
-            if *s != u64::max_value() {
+        let l = self.state.len();
+        for i in 0..l-1 {
+            if self.state[i] != u64::max_value() {
                 return false;
             }
+        }
+        if self.state[l-1] != ((1 << (self.size % 64)) - 1 ) {
+            return false;
         }
         true
     }
 
     /// Returns true if any of the bits are set to true
     pub fn any(&self) -> bool {
-        for s in self.state.iter() {
-            if *s > 0 {
+        for &s in self.state.iter() {
+            if s > 0 {
                 return true;
             }
         }
@@ -47,6 +52,10 @@ impl DenseBitSetExtended {
     /// Returns true if none of the bits are set to true
     pub fn none(&self) -> bool {
         !self.any()
+    }
+
+    pub fn get_size(&self) -> usize {
+        self.size
     }
 }
 
@@ -74,28 +83,35 @@ impl BitSet for DenseBitSetExtended {
                 self.state[idx] &= !(1 << offset)
             }
         }
+        if position > self.size {
+            self.size = position;
+        }
     }
 
     fn get_bit(&self, position: usize) -> bool {
+        if position > self.size {
+            return false;
+        }
+
         let idx = position >> 6;
         let offset = position % 64;
-        if idx > self.state.len() {
-          return false;
-        }
 
         (self.state[idx] >> offset) & 1 == 1
     }
 
     fn get_weight(&self) -> u32 {
         let mut hw = 0;
-        for s in self.state.iter() {
-            hw += s.count_ones()
+        let l = self.state.len();
+        for i in 0..l-1 {
+            hw += self.state[i].count_ones();
         }
+        hw += ((self.state[l-1]) & ((1 << (self.size % 64)) -1)).count_ones();
         hw
     }
 
     fn reset(&mut self) {
-        self.state = vec![]
+        self.state = vec![];
+        self.size = 0
     }
 
     fn flip(&mut self) {
@@ -133,7 +149,7 @@ impl fmt::Debug for DenseBitSetExtended {
 
 impl PartialEq for DenseBitSetExtended {
     fn eq(&self, other: &Self) -> bool {
-        if self.state.len() != other.state.len() {
+        if self.size != other.size {
             return false;
         }
         for i in 0..self.state.len() {
@@ -150,7 +166,7 @@ impl Eq for DenseBitSetExtended {}
 impl Not for DenseBitSetExtended {
     type Output = Self;
     fn not(self) -> Self {
-        let mut inv = Self{ state: Vec::with_capacity(self.state.len()) };
+        let mut inv = Self { state: Vec::with_capacity(self.state.len()), size: self.size };
         for i in 0..self.state.len() {
             inv.state.push(!self.state[i])
         }
@@ -169,16 +185,18 @@ impl BitAnd for DenseBitSetExtended {
             v.push( self.state[i] & rhs.state[i] )
         }
 
-        Self { state: v }
+        Self { state: v, size: min(self.size, rhs.size) }
     }
 }
 
 impl BitAndAssign for DenseBitSetExtended {
     fn bitand_assign(&mut self, rhs: Self) {
         // Note: there is no need to go further because x & 0 == 0
-        for i in 0..min (self.state.len(), rhs.state.len() ) {
+        let l = min (self.state.len(), rhs.state.len() );
+        for i in 0..l {
             self.state[i] &= rhs.state[i];
         }
+        self.size = min(self.size, rhs.size);
     }
 }
 
@@ -201,7 +219,7 @@ impl BitOr for DenseBitSetExtended {
             }
         }
 
-        Self { state: v }
+        Self { state: v, size: max(self.size, rhs.size) }
     }
 }
 
@@ -224,7 +242,7 @@ impl BitXor for DenseBitSetExtended {
             }
         }
 
-        Self { state: v }
+        Self { state: v, size: max(self.size, rhs.size) }
     }
 }
 
@@ -232,7 +250,7 @@ impl Shr<usize> for DenseBitSetExtended {
     type Output = Self;
     fn shr(self, rhs: usize) -> Self {
         if rhs >= self.state.len() {
-            Self { state: vec![] }
+            Self { state: vec![], size: 0 }
         } else {
             let mut v = DenseBitSetExtended::with_capacity(self.state.len() - rhs);
 
