@@ -16,7 +16,7 @@ pub struct DenseBitSetExtended {
 
 impl DenseBitSetExtended {
 
-    /// Returns a preallocated Extended Dense Bitset of size 64*size
+    /// Returns a preallocated Extended Dense Bitset of size 64*`size`
     pub fn with_capacity(size: usize) -> Self {
         assert!(size < 1000, "(Temporary?) We don't allow bitsets larger than 64k for now.");
         let state : Vec<u64> = Vec::with_capacity(size);
@@ -102,6 +102,19 @@ impl BitSet for DenseBitSetExtended {
             self.state[i] = !self.state[i]
         }
     }
+
+    fn to_string(self) -> String {
+        if self.state.len() == 0 {
+            return format!("{:064b}", 0)
+        }
+
+        let mut bss = vec![];
+        for s in self.state {
+            bss.push( format!("{:064b}", s) );
+        }
+        bss.reverse();
+        bss.join("")
+    }
 }
 
 impl fmt::Debug for DenseBitSetExtended {
@@ -116,6 +129,22 @@ impl fmt::Debug for DenseBitSetExtended {
         write!(f, "0b{}", bss)
     }
 }
+
+impl PartialEq for DenseBitSetExtended {
+    fn eq(&self, other: &Self) -> bool {
+        if self.state.len() != other.state.len() {
+            return false;
+        }
+        for i in 0..self.state.len() {
+            if self.state[i] != other.state[i] {
+                return false;
+            }
+        }
+        true
+    }
+}
+
+impl Eq for DenseBitSetExtended {}
 
 impl Not for DenseBitSetExtended {
     type Output = Self;

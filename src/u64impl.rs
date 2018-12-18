@@ -115,17 +115,15 @@ impl BitSet for DenseBitSet {
     fn flip(&mut self) {
         self.state = !self.state
     }
+
+    fn to_string(self) -> String {
+        format!("{:064b}", self.state)
+    }
 }
 
 impl fmt::Debug for DenseBitSet {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut bss = String::new();
-
-        for i in 0..64 {
-            bss += if self.get_bit(63-i) { "1" } else { "0" };
-        }
-
-        write!(f, "0b{} ({})", bss, self.to_integer())
+        write!(f, "{:64b}", self.to_integer())
     }
 }
 

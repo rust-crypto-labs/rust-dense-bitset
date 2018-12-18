@@ -13,4 +13,7 @@ pub trait BitSet {
 
     /// Flips the bitset (0 becomes 1 and vice versa)
     fn flip(&mut self);
+
+    /// Produces a string representation of the bitset (little endian), aligned with 64 bits and with leading zeroes
+    fn to_string(self) -> String;
 }
