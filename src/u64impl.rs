@@ -95,6 +95,14 @@ impl DenseBitSet {
 
         Self { state: v.swap_bytes() }
     }
+
+    pub fn rotr(&mut self, shift: u32) {
+        self.state = self.state.rotate_right(shift);
+    }
+
+    pub fn rotl(&mut self, shift: u32) {
+        self.state = self.state.rotate_left(shift);
+    }
 }
 
 impl BitSet for DenseBitSet {
