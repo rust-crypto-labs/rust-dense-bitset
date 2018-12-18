@@ -1,4 +1,5 @@
 use crate::bitset::BitSet;
+use crate::u64impl::DenseBitSet;
 
 use std::fmt;
 use std::cmp::{min, max};
@@ -23,6 +24,12 @@ impl DenseBitSetExtended {
         assert!(size < 64_000, "(Temporary?) We don't allow bitsets larger than 64k for now.");
         let state : Vec<u64> = Vec::with_capacity(1 + (size >> 6));
         Self { state: state, size: 0 }
+    }
+
+    pub fn from_dense_bitset(dbs: DenseBitSet) -> Self {
+        let state = vec![dbs.to_integer()];
+        let size = 1;
+        Self { state, size }
     }
 
     /// Returns true if all bits are set to true
