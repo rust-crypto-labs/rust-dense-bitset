@@ -406,7 +406,6 @@ mod tests {
         let mut bs1 = DenseBitSetExtended::with_capacity(2);
         bs1.set_bit(100, true);
         let bs2 = bs1 >> 46;
-        println!("{:?}", bs2);
         assert!(bs2.get_bit(54));
     }
 
