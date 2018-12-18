@@ -11,7 +11,7 @@ use std::ops::{
     ShrAssign,
 };
 
-/// Provides a bitset implementation (only limited by available memory)
+/// Provides a `BitSet` implementation (only limited by available memory)
 #[derive(Clone)]
 pub struct DenseBitSetExtended {
     state: Vec<u64>,
@@ -20,13 +20,16 @@ pub struct DenseBitSetExtended {
 
 impl DenseBitSetExtended {
 
-    /// Returns a new empty extended Dense Bitset
+    /// Returns a new empty extended `DenseBitsetExtended`
     pub fn new() -> Self {
         let state: Vec<u64> = Vec::new();
         return Self { state, size: 0 };
     }
 
-    /// Returns a preallocated Extended Dense Bitset of `size` bits
+    /// Returns an empty `DenseBitsetExtended` with pre-allocated memory of `size` bits 
+    ///
+    /// This is useful to avoid additional allocations is situations where the bitset's
+    /// space requirements are known in advance
     pub fn with_capacity(size: usize) -> Self {
         assert!(
             size < 64_000,
@@ -36,14 +39,14 @@ impl DenseBitSetExtended {
         Self { state, size: 0 }
     }
 
-    /// Returns a DenseBitSetExtended from a given DenseBitSet
+    /// Returns a `DenseBitSetExtended` extending a given `DenseBitSet`
     pub fn from_dense_bitset(dbs: DenseBitSet) -> Self {
         let state = vec![dbs.to_integer()];
         let size = 64;
         Self { state, size }
     }
 
-    /// Returns true if all bits are set to true
+    /// Returns `true` if and only if all bits are set to `true`
     pub fn all(&self) -> bool {
         let l = self.state.len();
         for i in 0..l - 1 {
@@ -61,7 +64,7 @@ impl DenseBitSetExtended {
         true
     }
 
-    /// Returns true if any of the bits are set to true
+    /// Returns `true` if at least one bit is set to `true`
     pub fn any(&self) -> bool {
         for &s in &self.state {
             if s > 0 {
@@ -71,7 +74,7 @@ impl DenseBitSetExtended {
         false
     }
 
-    /// Returns true if none of the bits are set to true
+    /// Returns `true` if all the bits are set to `false`
     pub fn none(&self) -> bool {
         !self.any()
     }

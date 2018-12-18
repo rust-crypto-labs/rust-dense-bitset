@@ -9,7 +9,7 @@ use std::ops::{
     ShrAssign,
 };
 
-/// Provides an efficient and compact bitset implementation for up to 64 bits
+/// Provides an efficient and compact `BitSet` implementation for up to 64 bits
 #[derive(Copy, Clone)]
 pub struct DenseBitSet {
     state: u64,
@@ -28,6 +28,8 @@ impl DenseBitSet {
     }
 
     /// Generates a bitset from a string and a base (little endian convention)
+    ///
+    /// The `base` must be an integer between 2 and 32
     pub fn from_string(s: &str, base: u32) -> Self {
         assert!(2 <= base && base <= 32, "Only supports base from 2 to 32");
         let val = u64::from_str_radix(s, base);
@@ -55,8 +57,10 @@ impl DenseBitSet {
         }
     }
 
-    /// Returns nothing, mutates the DenseBitSet to insert a value at the given `position` with given `length` (little endian convention)
-    /// if length is greater than the value's length, this will add the difference in size as zeros to the left of value
+    /// Returns nothing, mutates the `DenseBitSet` to insert `value` at the given `position`.
+    ///
+    /// Note that `value` is treated as a `length`-bit integer (little endian convention);
+    /// if necessary, `value` is padded with zeros (or truncated) to be of the correct length
     pub fn insert(&mut self, position: usize, length: usize, value: u64) {
         assert!(
             position + length <= 64,
@@ -73,22 +77,22 @@ impl DenseBitSet {
         }
     }
 
-    /// Returns true if all bits are set to true
+    /// Returns `true` if and only if all bits are set to `true`
     pub fn all(&self) -> bool {
         self.state == u64::max_value()
     }
 
-    /// Returns true if any of the bits are set to true
+    /// Returns `true` if at least one of the bits is set to `true`
     pub fn any(&self) -> bool {
         self.state > 0
     }
 
-    /// Returns true if none of the bits are set to true
+    /// Returns `true` if all the bits are set to `false`
     pub fn none(&self) -> bool {
-        self.state == 0
+        !self.any()
     }
 
-    /// Returns a bit-reversed bitset
+    /// Returns a bit-reversed `DenseBitSet`
     pub fn reverse(self) -> Self {
         let mut v = self.state;
         v = ((v >> 1) & (0x5555555555555555 as u64)) | ((v & (0x5555555555555555 as u64)) << 1);
@@ -100,12 +104,16 @@ impl DenseBitSet {
         }
     }
 
-    /// Shifts the bits to the right by a specified amount, shift, wrapping the truncated bits to the beginning of the set
+    /// Right rotation of `shift` bits
+    /// 
+    /// Shifts the bits to the right, wrapping the truncated bits to the end of the set
     pub fn rotr(&mut self, shift: u32) {
         self.state = self.state.rotate_right(shift);
     }
 
-    /// Shifts the bits to the left by a specified amount, shift, wrapping the truncated bits to the beginning of the set
+    /// Left rotation of `shift` bits
+    ///
+    /// Shifts the bits to the left, wrapping the truncated bits to the beginning of the set
     pub fn rotl(&mut self, shift: u32) {
         self.state = self.state.rotate_left(shift);
     }
