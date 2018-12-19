@@ -58,6 +58,17 @@ mod tests {
     }
 
     #[test]
+    fn test_from_string_dbse() {
+        let val = "11111000110101010010000101011010010100101011010101111110101000001010111010110010100101001010111101010111011010100000101011101011";
+        let bs1 = DenseBitSetExtended::from_string(String::from(val), 2);
+
+        assert_eq!(bs1.to_string(), val);
+
+        let bs2 = DenseBitSetExtended::from_string(String::from("f8d5215a52b57ea0aeb294af576a0aeb"), 16);
+        assert_eq!(bs2.to_string(), val);
+    }    
+
+    #[test]
     #[should_panic]
     fn catch_invalid_string_dbs() {
         let _bs = DenseBitSet::from_string("Hello World!", 12);

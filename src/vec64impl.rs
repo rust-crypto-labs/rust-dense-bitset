@@ -204,7 +204,7 @@ impl DenseBitSetExtended {
         Self { state, size: self.size }
     }
 
-    /// Retuens a left rotation of the bitset by `shift` bits 
+    /// Returns a left rotation of the bitset by `shift` bits 
     pub fn rotl(self, shift: usize) -> Self {
         // Rotation is periodic
         let shift_amount = shift % self.size ;
@@ -218,7 +218,7 @@ impl DenseBitSetExtended {
         shifted
     }
 
-    /// Retuens a right rotation of the bitset by `shift` bits 
+    /// Returns a right rotation of the bitset by `shift` bits 
     pub fn rotr(self, shift: usize) -> Self {
         // Rotation is periodic
         let shift_amount = shift % self.size;
@@ -226,10 +226,40 @@ impl DenseBitSetExtended {
 
         let extra = self.subset(0, shift);
         let mut shifted = self >> shift;
-        
+
         shifted.insert(&extra, size_before_shift);
 
         shifted 
+    }
+
+    /// Constructs a `DenseBitSetExtended` from a provided string
+    pub fn from_string(s: String, radix: u32) -> Self {
+        assert!(radix.is_power_of_two(), "Only power of two radices are supported" );
+        assert!(radix > 0, "Radix must be > 0");
+        assert!(radix <= 32, "Radix must be <= 32");
+
+        let log_radix = (radix as u64).trailing_zeros();
+        let chunk_size =  64/log_radix as usize;
+        let mut size = 0;
+
+        let mut state = vec![];
+        let mut cur = s; 
+        while !cur.is_empty() {
+            if cur.len() > chunk_size {
+                let (ms, ls) = cur.split_at(cur.len() - chunk_size);
+                let val = u64::from_str_radix(ls, radix).expect("Error while parsing input.");
+                state.push(val);
+                cur = String::from(ms);
+                size += 64;
+            }
+            else {
+                let val = u64::from_str_radix(&cur.to_string(), radix).expect("Error while parsing input.");
+                state.push(val);  
+                size += 64;
+                break;
+            }
+        }
+        Self { state, size }
     }
 }
 
