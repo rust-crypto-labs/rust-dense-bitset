@@ -482,5 +482,16 @@ mod tests {
         let _r = bs.extract_u64(12, 75); // Should panic: 12+75 exceeds the 64 bit size limit
     }
 
+    #[test]
+    fn test_subset_dbse() {
+
+        let bs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(1234567890) ) ;
+        let e1 = bs.subset(0, 12);
+        let e2 = bs.subset(4, 128).subset(0, 4);
+
+        assert_eq!(e1.to_string(), "0000000000000000000000000000000000000000000000000000001011010010");
+        assert_eq!(e2.to_string(), "0000000000000000000000000000000000000000000000000000000000001101");
+    }
+
 }
 

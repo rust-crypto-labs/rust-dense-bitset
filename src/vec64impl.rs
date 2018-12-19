@@ -123,6 +123,18 @@ impl DenseBitSetExtended {
             }
         }
     }
+
+    /// Returns a `DenseBitSetExtended` of given `length` whose bits are extracted from the given `position` 
+    pub fn subset(&self, position: usize, length: usize) -> Self {
+        let segments = 1+ (length >> 6);
+        let mut state = vec![];
+
+        for l in 0..segments {
+            state.push ( self.extract_u64( l*64 + position, 64 ) );
+        }
+        Self { state, size: length }
+
+    }
 }
 
 impl BitSet for DenseBitSetExtended {
@@ -184,8 +196,17 @@ impl BitSet for DenseBitSetExtended {
         }
 
         let mut bss = vec![];
-        for s in self.state {
-            bss.push( format!("{:064b}", s) );
+        
+        if self.size % 64 == 0 {
+            for s in self.state {
+                bss.push( format!("{:064b}", s) );
+            }
+        }
+        else {
+            for i in 0..self.state.len() - 1 {
+                bss.push( format!("{:064b}", self.state[i]) );
+            }
+            bss.push( format!("{:064b}", self.state[self.state.len() - 1] & ( (1 << (self.size % 64)) - 1)) );
         }
         bss.reverse();
         bss.join("")
