@@ -135,6 +135,57 @@ impl DenseBitSetExtended {
         Self { state, size: length }
 
     }
+
+    /// Inserts a `DenseBitSet` at the given `position`, which extends and overwrites the current one
+    pub fn insert(&mut self, other: &Self, position: usize) {
+        let l = other.state.len();
+        let size_before_insertion = self.size;
+        for i in 0..l {
+            self.insert_u64(other.state[i], position + i * 64);
+        }
+
+        // By default, insert_u64 sets the size to the next multiple of 64
+        // but we can truncate more precisely here
+        self.size = max ( size_before_insertion, position + l * 64);
+        
+        println!("vecsize: {}", self.state.len());
+    }
+
+    /// Inserts an integer as a bitset at the given `position`
+    pub fn insert_u64(&mut self, i: u64, position: usize) {
+
+        let idx = position >> 6;
+        let offset = position % 64;
+
+        // First, resize the bitset if necessary
+        if 1+idx > self.state.len() {
+            // We need to extend the bitset to accomodate this insertion
+            let num_seg = 1+idx - self.state.len();
+
+            for _ in 0..=num_seg {
+                self.state.push(0);
+            }
+        }
+        self.size = max( self.size, position + 64 );
+
+        // Second, perform the actual insertion
+        if offset == 0 {
+            // Easy case: the u64 matches an element
+            self.state[idx] = i;
+        }
+        else {
+            // We need to split `i` in twain, zero the appropriate bits in the
+            // to segments, and perform the insertion
+
+            let lsb = (i & ((1 << (64 - offset))-1)) << offset;
+            let msb =  i >> (64 - offset);
+            let mask_lsb = u64::max_value() >> (64-offset);
+            let mask_msb = u64::max_value() << offset;
+
+            self.state[idx] = (self.state[idx] & mask_lsb) | lsb;
+            self.state[idx+1] = (self.state[idx+1] & mask_msb) | msb;
+        }
+    }
 }
 
 impl BitSet for DenseBitSetExtended {
@@ -196,7 +247,7 @@ impl BitSet for DenseBitSetExtended {
         }
 
         let mut bss = vec![];
-        
+
         if self.size % 64 == 0 {
             for s in self.state {
                 bss.push( format!("{:064b}", s) );

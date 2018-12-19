@@ -493,5 +493,25 @@ mod tests {
         assert_eq!(e2.to_string(), "0000000000000000000000000000000000000000000000000000000000001101");
     }
 
+
+    #[test]
+    fn test_insert_u64_dbse() {
+
+        let mut bs = DenseBitSetExtended::new() ;
+        bs.insert_u64(0b1011011101111, 50);
+
+        assert_eq!(bs.to_string(), "00000000000000000000000000000000000000000000000000000000000000000101101110111100000000000000000000000000000000000000000000000000");
+    }
+
+    #[test]
+    fn test_insert_dbse() {
+
+        let mut bs = DenseBitSetExtended::new() ;
+        let bs2 = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(0b1011011101111) );
+        bs.insert(&bs2, 50);
+
+        assert_eq!(bs.to_string(), "00000000000000000000000000000000000000000000000000000000000000000101101110111100000000000000000000000000000000000000000000000000");
+    }
+
 }
 
