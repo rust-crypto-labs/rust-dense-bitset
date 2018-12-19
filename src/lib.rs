@@ -455,5 +455,32 @@ mod tests {
         assert!(bs1.none());
     }
 
+    #[test]
+    fn test_extract_u64_dbse() {
+        let offset = 140;
+        let bs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(1234567890) ) << offset;
+        let e1 = bs.extract_u64(1 +offset, 63);
+        let e2 = bs.extract_u64(0 +offset, 8 );
+        let e3 = bs.extract_u64(5 +offset, 14);
+
+        assert_eq!(e1, 617283945);
+        assert_eq!(e2, 210);
+        assert_eq!(e3, 12310);
+    }
+
+    #[test]
+    #[should_panic]
+    fn catch_extract_u64_zero_width_dbse() {
+        let bs = DenseBitSetExtended::new();
+        let _r = bs.extract_u64(12, 0); // Should panic: 0 is passed as 2nd argument
+    }
+
+    #[test]
+    #[should_panic]
+    fn catch_extract_u64_overflow_dbse() {
+        let bs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(1234567890) );
+        let _r = bs.extract_u64(12, 75); // Should panic: 12+75 exceeds the 64 bit size limit
+    }
+
 }
 

@@ -77,6 +77,52 @@ impl DenseBitSetExtended {
     pub fn get_size(&self) -> usize {
         self.size
     }
+
+
+    /// Returns an integer representation of the bitsting starting at the given `position` with given `length` (little endian convention)
+    ///
+    /// Note: this method wan extract up to 64 bits into an `u64`. For larger extractions, use `extract`
+    pub fn extract_u64(&self, position: usize, length: usize) -> u64 {
+
+        assert!(
+            length <= 64,
+            "This implementation is currently limited to 64 bit bitsets."
+        );
+        assert!(length > 0, "Cannot extract a zero-width slice.");
+        if position >= self.size {
+            // The extraction is beyond any bit set to 1
+            return 0;
+        }
+        let idx = position >> 6;
+        let offset = position % 64;
+        let actual_length = if position + length > self.size { self.size - position } else { length };
+        
+        if actual_length + offset < 64 {
+            // Remain within the boundary of an element
+            return (self.state[idx] >> offset) & ((1 << actual_length) - 1);
+        }
+        else if actual_length + offset == 64 {
+            // Special case to avoid masking overflow
+            return self.state[idx] >> offset; 
+        }
+        else {
+            // Possibly split between neighbour elements
+
+            // Number of bits to take from the next element
+            let remainder = actual_length + offset - 64;
+
+            let lsb = self.state[idx] >> offset;
+
+            if self.state.len() == idx + 1 {
+                // If there is no next element, assume it is zero
+                return lsb;
+            } else {
+                // Otherwise get the remaining bits and assemble the response
+                let msb = self.state[idx+1]  & ((1 << remainder) - 1);
+                return (msb << (64 - offset)) | lsb;
+            }
+        }
+    }
 }
 
 impl BitSet for DenseBitSetExtended {
