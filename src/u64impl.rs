@@ -16,7 +16,6 @@ pub struct DenseBitSet {
 }
 
 impl DenseBitSet {
-
     /// Returns a new empty bitset
     pub fn new() -> Self {
         Self { state: 0 }
@@ -105,7 +104,7 @@ impl DenseBitSet {
     }
 
     /// Right rotation of `shift` bits
-    /// 
+    ///
     /// Shifts the bits to the right, wrapping the truncated bits to the end of the set
     pub fn rotr(&mut self, shift: u32) {
         self.state = self.state.rotate_right(shift);

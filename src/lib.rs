@@ -19,7 +19,7 @@ mod tests {
 
     #[test]
     fn test_reverse_dbse() {
-        let bs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(666123)) >> 63;
+        let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(666123)) >> 63;
         let rs = bs.reverse();
         let srev = bs.to_string().chars().rev().collect::<String>();
         assert_eq!(srev, rs.to_string());
@@ -61,12 +61,12 @@ mod tests {
     fn test_from_string_dbse() {
         let val = "11111000110101010010000101011010010100101011010101111110101000001010111010110010100101001010111101010111011010100000101011101011";
         let bs1 = DenseBitSetExtended::from_string(String::from(val), 2);
-
         assert_eq!(bs1.to_string(), val);
 
-        let bs2 = DenseBitSetExtended::from_string(String::from("f8d5215a52b57ea0aeb294af576a0aeb"), 16);
+        let bs2 =
+            DenseBitSetExtended::from_string(String::from("f8d5215a52b57ea0aeb294af576a0aeb"), 16);
         assert_eq!(bs2.to_string(), val);
-    }    
+    }
 
     #[test]
     #[should_panic]
@@ -384,6 +384,25 @@ mod tests {
     }
 
     #[test]
+    fn test_bitor_assign_dbse() {
+        let mut bs1 = DenseBitSetExtended::with_capacity(10);
+        let mut bs2 = DenseBitSetExtended::with_capacity(10);
+
+        bs1.set_bit(1, true);
+        bs1.set_bit(70, true);
+        bs1.set_bit(72, true);
+        bs1.set_bit(74, true);
+        bs2.set_bit(1, true);
+        bs2.set_bit(2, true);
+        bs2.set_bit(72, true);
+        bs2.set_bit(73, true);
+        bs2.set_bit(74, true);
+        bs2 |= bs1;
+
+        assert_eq!(bs2.to_string(), "00000000000000000000000000000000000000000000000000000111010000000000000000000000000000000000000000000000000000000000000000000110");
+    }
+
+    #[test]
     fn test_bitxor_dbs() {
         let bs1 = DenseBitSet::from_integer(0b10101);
         let bs2 = DenseBitSet::from_integer(0b11100);
@@ -417,6 +436,25 @@ mod tests {
         let mut bs2 = DenseBitSet::from_integer(0b1001);
         bs2 ^= bs1;
         assert_eq!(bs2.to_integer(), 0b10001);
+    }
+
+    #[test]
+    fn test_bitxor_assign_dbse() {
+        let mut bs1 = DenseBitSetExtended::with_capacity(10);
+        let mut bs2 = DenseBitSetExtended::with_capacity(10);
+
+        bs1.set_bit(1, true);
+        bs1.set_bit(70, true);
+        bs1.set_bit(72, true);
+        bs1.set_bit(74, true);
+        bs2.set_bit(1, true);
+        bs2.set_bit(2, true);
+        bs2.set_bit(72, true);
+        bs2.set_bit(73, true);
+        bs2.set_bit(74, true);
+        bs2 ^= bs1;
+
+        assert_eq!(bs2.to_string(), "00000000000000000000000000000000000000000000000000000010010000000000000000000000000000000000000000000000000000000000000000000100");
     }
 
     #[test]
@@ -456,6 +494,14 @@ mod tests {
     }
 
     #[test]
+    fn test_shl_assign_dbse() {
+        let mut bs1 = DenseBitSetExtended::with_capacity(2);
+        bs1.set_bit(60, true);
+        bs1 <<= 46;
+        assert!(bs1.get_bit(106));
+    }
+
+    #[test]
     fn test_shr_dbs() {
         let bs1 = DenseBitSet::from_integer(0b101011111111111101);
         let bs2 = bs1 >> 6;
@@ -482,12 +528,21 @@ mod tests {
     }
 
     #[test]
+    fn test_shr_assign_dbse() {
+        let mut bs1 = DenseBitSetExtended::with_capacity(2);
+        bs1.set_bit(100, true);
+        bs1 >>= 46;
+        assert!(bs1.get_bit(54));
+    }
+
+    #[test]
     fn test_extract_u64_dbse() {
         let offset = 140;
-        let bs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(1234567890) ) << offset;
-        let e1 = bs.extract_u64(1 +offset, 63);
-        let e2 = bs.extract_u64(0 +offset, 8 );
-        let e3 = bs.extract_u64(5 +offset, 14);
+        let bs =
+            DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(1234567890)) << offset;
+        let e1 = bs.extract_u64(1 + offset, 63);
+        let e2 = bs.extract_u64(0 + offset, 8);
+        let e3 = bs.extract_u64(5 + offset, 14);
 
         assert_eq!(e1, 617283945);
         assert_eq!(e2, 210);
@@ -504,26 +559,29 @@ mod tests {
     #[test]
     #[should_panic]
     fn catch_extract_u64_overflow_dbse() {
-        let bs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(1234567890) );
+        let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(1234567890));
         let _r = bs.extract_u64(12, 75); // Should panic: 12+75 exceeds the 64 bit size limit
     }
 
     #[test]
     fn test_subset_dbse() {
-
-        let bs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(1234567890) ) ;
+        let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(1234567890));
         let e1 = bs.subset(0, 12);
         let e2 = bs.subset(4, 128).subset(0, 4);
 
-        assert_eq!(e1.to_string(), "0000000000000000000000000000000000000000000000000000001011010010");
-        assert_eq!(e2.to_string(), "0000000000000000000000000000000000000000000000000000000000001101");
+        assert_eq!(
+            e1.to_string(),
+            "0000000000000000000000000000000000000000000000000000001011010010"
+        );
+        assert_eq!(
+            e2.to_string(),
+            "0000000000000000000000000000000000000000000000000000000000001101"
+        );
     }
-
 
     #[test]
     fn test_insert_u64_dbse() {
-
-        let mut bs = DenseBitSetExtended::new() ;
+        let mut bs = DenseBitSetExtended::new();
         bs.insert_u64(0b1011011101111, 50);
 
         assert_eq!(bs.to_string(), "00000000000000000000000000000000000000000000000000000000000000000101101110111100000000000000000000000000000000000000000000000000");
@@ -531,9 +589,9 @@ mod tests {
 
     #[test]
     fn test_insert_dbse() {
-
-        let mut bs = DenseBitSetExtended::new() ;
-        let bs2 = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(0b1011011101111) );
+        let mut bs = DenseBitSetExtended::new();
+        let bs2 =
+            DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(0b1011011101111));
         bs.insert(&bs2, 50);
 
         assert_eq!(bs.to_string(), "00000000000000000000000000000000000000000000000000000000000000000101101110111100000000000000000000000000000000000000000000000000");

@@ -19,14 +19,13 @@ pub struct DenseBitSetExtended {
 }
 
 impl DenseBitSetExtended {
-
     /// Returns a new empty extended `DenseBitsetExtended`
     pub fn new() -> Self {
         let state: Vec<u64> = Vec::new();
         return Self { state, size: 0 };
     }
 
-    /// Returns an empty `DenseBitsetExtended` with pre-allocated memory of `size` bits 
+    /// Returns an empty `DenseBitsetExtended` with pre-allocated memory of `size` bits
     ///
     /// This is useful to avoid additional allocations is situations where the bitset's
     /// space requirements are known in advance
@@ -84,12 +83,10 @@ impl DenseBitSetExtended {
         self.size
     }
 
-
     /// Returns an integer representation of the bitsting starting at the given `position` with given `length` (little endian convention)
     ///
     /// Note: this method wan extract up to 64 bits into an `u64`. For larger extractions, use `extract`
     pub fn extract_u64(&self, position: usize, length: usize) -> u64 {
-
         assert!(
             length <= 64,
             "This implementation is currently limited to 64 bit bitsets."
@@ -101,17 +98,19 @@ impl DenseBitSetExtended {
         }
         let idx = position >> 6;
         let offset = position % 64;
-        let actual_length = if position + length > self.size { self.size - position } else { length };
-        
+        let actual_length = if position + length > self.size {
+            self.size - position
+        } else {
+            length
+        };
+
         if actual_length + offset < 64 {
             // Remain within the boundary of an element
             return (self.state[idx] >> offset) & ((1 << actual_length) - 1);
-        }
-        else if actual_length + offset == 64 {
+        } else if actual_length + offset == 64 {
             // Special case to avoid masking overflow
-            return self.state[idx] >> offset; 
-        }
-        else {
+            return self.state[idx] >> offset;
+        } else {
             // Possibly split between neighbour elements
 
             // Number of bits to take from the next element
@@ -124,22 +123,24 @@ impl DenseBitSetExtended {
                 return lsb;
             } else {
                 // Otherwise get the remaining bits and assemble the response
-                let msb = self.state[idx+1]  & ((1 << remainder) - 1);
+                let msb = self.state[idx + 1] & ((1 << remainder) - 1);
                 return (msb << (64 - offset)) | lsb;
             }
         }
     }
 
-    /// Returns a `DenseBitSetExtended` of given `length` whose bits are extracted from the given `position` 
+    /// Returns a `DenseBitSetExtended` of given `length` whose bits are extracted from the given `position`
     pub fn subset(&self, position: usize, length: usize) -> Self {
-        let segments = 1+ (length >> 6);
+        let segments = 1 + (length >> 6);
         let mut state = vec![];
 
         for l in 0..segments {
-            state.push ( self.extract_u64( l*64 + position, 64 ) );
+            state.push(self.extract_u64(l * 64 + position, 64));
         }
-        Self { state, size: length }
-
+        Self {
+            state,
+            size: length,
+        }
     }
 
     /// Inserts a `DenseBitSet` at the given `position`, which extends and overwrites the current one
@@ -152,48 +153,46 @@ impl DenseBitSetExtended {
 
         // By default, insert_u64 sets the size to the next multiple of 64
         // but we can truncate more precisely here
-        self.size = max ( size_before_insertion, position + l * 64);
-        
+        self.size = max(size_before_insertion, position + l * 64);
+
         println!("vecsize: {}", self.state.len());
     }
 
     /// Inserts an integer as a bitset at the given `position`
     pub fn insert_u64(&mut self, i: u64, position: usize) {
-
         let idx = position >> 6;
         let offset = position % 64;
 
         // First, resize the bitset if necessary
-        if 1+idx > self.state.len() {
+        if 1 + idx > self.state.len() {
             // We need to extend the bitset to accomodate this insertion
-            let num_seg = 1+idx - self.state.len();
+            let num_seg = 1 + idx - self.state.len();
 
             for _ in 0..=num_seg {
                 self.state.push(0);
             }
         }
-        self.size = max( self.size, position + 64 );
+        self.size = max(self.size, position + 64);
 
         // Second, perform the actual insertion
         if offset == 0 {
             // Easy case: the u64 matches an element
             self.state[idx] = i;
-        }
-        else {
+        } else {
             // We need to split `i` in twain, zero the appropriate bits in the
             // to segments, and perform the insertion
 
-            let lsb = (i & ((1 << (64 - offset))-1)) << offset;
-            let msb =  i >> (64 - offset);
-            let mask_lsb = u64::max_value() >> (64-offset);
+            let lsb = (i & ((1 << (64 - offset)) - 1)) << offset;
+            let msb = i >> (64 - offset);
+            let mask_lsb = u64::max_value() >> (64 - offset);
             let mask_msb = u64::max_value() << offset;
 
             self.state[idx] = (self.state[idx] & mask_lsb) | lsb;
-            self.state[idx+1] = (self.state[idx+1] & mask_msb) | msb;
+            self.state[idx + 1] = (self.state[idx + 1] & mask_msb) | msb;
         }
     }
 
-    /// Returns a bit-reversed bitset 
+    /// Returns a bit-reversed bitset
     pub fn reverse(&self) -> Self {
         let mut state = vec![];
         for &s in &self.state {
@@ -201,13 +200,16 @@ impl DenseBitSetExtended {
             state.push(bs);
         }
         state.reverse();
-        Self { state, size: self.size }
+        Self {
+            state,
+            size: self.size,
+        }
     }
 
-    /// Returns a left rotation of the bitset by `shift` bits 
+    /// Returns a left rotation of the bitset by `shift` bits
     pub fn rotl(self, shift: usize) -> Self {
         // Rotation is periodic
-        let shift_amount = shift % self.size ;
+        let shift_amount = shift % self.size;
         let size_before_shift = self.size;
 
         let mut shifted = self << shift;
@@ -218,7 +220,7 @@ impl DenseBitSetExtended {
         shifted
     }
 
-    /// Returns a right rotation of the bitset by `shift` bits 
+    /// Returns a right rotation of the bitset by `shift` bits
     pub fn rotr(self, shift: usize) -> Self {
         // Rotation is periodic
         let shift_amount = shift % self.size;
@@ -229,21 +231,24 @@ impl DenseBitSetExtended {
 
         shifted.insert(&extra, size_before_shift);
 
-        shifted 
+        shifted
     }
 
     /// Constructs a `DenseBitSetExtended` from a provided string
     pub fn from_string(s: String, radix: u32) -> Self {
-        assert!(radix.is_power_of_two(), "Only power of two radices are supported" );
+        assert!(
+            radix.is_power_of_two(),
+            "Only power of two radices are supported"
+        );
         assert!(radix > 0, "Radix must be > 0");
         assert!(radix <= 32, "Radix must be <= 32");
 
         let log_radix = (radix as u64).trailing_zeros();
-        let chunk_size =  64/log_radix as usize;
+        let chunk_size = 64 / log_radix as usize;
         let mut size = 0;
 
         let mut state = vec![];
-        let mut cur = s; 
+        let mut cur = s;
         while !cur.is_empty() {
             if cur.len() > chunk_size {
                 let (ms, ls) = cur.split_at(cur.len() - chunk_size);
@@ -251,11 +256,11 @@ impl DenseBitSetExtended {
                 state.push(val);
                 cur = String::from(ms);
                 size += 64;
-            }
-            else {
-                let val = u64::from_str_radix(&cur.to_string(), radix).expect("Error while parsing input.");
-                state.push(val);  
-                size += 64;
+            } else {
+                let val = u64::from_str_radix(&cur.to_string(), radix)
+                    .expect("Error while parsing input.");
+                state.push(val);
+                size += cur.len() * (log_radix as usize);
                 break;
             }
         }
@@ -319,7 +324,7 @@ impl BitSet for DenseBitSetExtended {
     }
 
     fn to_string(self) -> String {
-        if self.state.len() == 0 {
+        if self.state.is_empty() {
             return format!("{:064b}", 0);
         }
 
@@ -327,15 +332,16 @@ impl BitSet for DenseBitSetExtended {
 
         if self.size % 64 == 0 {
             for s in self.state {
-                bss.push( format!("{:064b}", s) );
+                bss.push(format!("{:064b}", s));
             }
-        }
-        else {
+        } else {
             for i in 0..self.state.len() - 1 {
-                bss.push( format!("{:064b}", self.state[i]) );
+                bss.push(format!("{:064b}", self.state[i]));
             }
-            bss.push( format!("{:064b}", self.state[self.state.len() - 1] & ( (1 << (self.size % 64)) - 1)) );
-
+            bss.push(format!(
+                "{:064b}",
+                self.state[self.state.len() - 1] & ((1 << (self.size % 64)) - 1)
+            ));
         }
         bss.reverse();
         bss.join("")
@@ -459,6 +465,22 @@ impl BitOr for DenseBitSetExtended {
     }
 }
 
+impl BitOrAssign for DenseBitSetExtended {
+    fn bitor_assign(&mut self, rhs: Self) {
+        let l = max(self.state.len(), rhs.state.len());
+        for i in 0..l {
+            if i < self.state.len() && i < rhs.state.len() {
+                // x | y
+                self.state[i] |= rhs.state[i]
+            } else if i > self.state.len() {
+                // x | 0 == x
+                self.state[i] = rhs.state[i]
+            }
+            // if rhs.state[i] == 0 we do nothing because x | 0 == x
+        }
+    }
+}
+
 impl BitXor for DenseBitSetExtended {
     type Output = Self;
     fn bitxor(self, rhs: Self) -> Self {
@@ -485,6 +507,57 @@ impl BitXor for DenseBitSetExtended {
     }
 }
 
+impl BitXorAssign for DenseBitSetExtended {
+    fn bitxor_assign(&mut self, rhs: Self) {
+        let l = max(self.state.len(), rhs.state.len());
+        for i in 0..l {
+            if i < self.state.len() && i < rhs.state.len() {
+                // x ^ y
+                self.state[i] ^= rhs.state[i]
+            } else if i > self.state.len() {
+                // x ^ 0 == x
+                self.state[i] = rhs.state[i]
+            }
+            // if rhs.state[i] == 0 we do nothing because x ^ 0 == x
+        }
+    }
+}
+
+impl Shl<usize> for DenseBitSetExtended {
+    type Output = Self;
+    fn shl(self, rhs: usize) -> Self {
+        let mut v = DenseBitSetExtended::with_capacity(self.size + rhs);
+
+        // Note: this may not be the most efficient implementation
+        for i in 0..self.size {
+            let source = i;
+            let dest = i + rhs;
+            v.set_bit(dest, self.get_bit(source));
+        }
+        v
+    }
+}
+
+impl ShlAssign<usize> for DenseBitSetExtended {
+    fn shl_assign(&mut self, rhs: usize) {
+        let trailing_zeros = rhs >> 6;
+        let actual_shift = rhs % 64;
+        if rhs > (self.state.len() * 64 - self.size) {
+            self.state.push(0);
+        }
+        let l = self.state.len();
+        for i in 0..(l - 1) {
+            self.state[l - i - 1] = (self.state[l - i - 1] << actual_shift)
+                | (self.state[l - i - 2] >> (64 - actual_shift))
+        }
+        self.state[0] <<= actual_shift;
+        for _ in 0..trailing_zeros {
+            self.state.insert(0, 0);
+        }
+        self.size += rhs;
+    }
+}
+
 impl Shr<usize> for DenseBitSetExtended {
     type Output = Self;
     fn shr(self, rhs: usize) -> Self {
@@ -508,17 +581,22 @@ impl Shr<usize> for DenseBitSetExtended {
     }
 }
 
-impl Shl<usize> for DenseBitSetExtended {
-    type Output = Self;
-    fn shl(self, rhs: usize) -> Self {
-        let mut v = DenseBitSetExtended::with_capacity(self.size + rhs);
-
-        // Note: this may not be the most efficient implementation
-        for i in 0..self.size {
-            let source = i;
-            let dest = i + rhs;
-            v.set_bit(dest, self.get_bit(source));
+impl ShrAssign<usize> for DenseBitSetExtended {
+    fn shr_assign(&mut self, rhs: usize) {
+        if rhs >= self.size {
+            self.reset();
         }
-        v
+        let to_drop = rhs >> 6;
+        let actual_shift = rhs % 64;
+        for _ in 0..to_drop {
+            self.state.remove(0);
+        }
+        let l = self.state.len();
+        for i in 0..(l - 1) {
+            self.state[i] =
+                (self.state[i] >> actual_shift) | (self.state[i + 1] << (64 - actual_shift))
+        }
+        self.state[l - 1] >>= actual_shift;
+        self.size -= rhs;
     }
 }
