@@ -203,6 +203,34 @@ impl DenseBitSetExtended {
         state.reverse();
         Self { state, size: self.size }
     }
+
+    /// Retuens a left rotation of the bitset by `shift` bits 
+    pub fn rotl(self, shift: usize) -> Self {
+        // Rotation is periodic
+        let shift_amount = shift % self.size ;
+        let size_before_shift = self.size;
+
+        let mut shifted = self << shift;
+        let extra = shifted.subset(size_before_shift, shift);
+
+        shifted.insert(&extra, 0);
+
+        shifted
+    }
+
+    /// Retuens a right rotation of the bitset by `shift` bits 
+    pub fn rotr(self, shift: usize) -> Self {
+        // Rotation is periodic
+        let shift_amount = shift % self.size;
+        let size_before_shift = self.size;
+
+        let extra = self.subset(0, shift);
+        let mut shifted = self >> shift;
+        
+        shifted.insert(&extra, size_before_shift);
+
+        shifted 
+    }
 }
 
 impl BitSet for DenseBitSetExtended {
