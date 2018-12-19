@@ -18,6 +18,14 @@ mod tests {
     }
 
     #[test]
+    fn test_reverse_dbse() {
+        let bs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(666123)) >> 63;
+        let rs = bs.reverse();
+        let srev = bs.to_string().chars().rev().collect::<String>();
+        assert_eq!(srev, rs.to_string());
+    }
+
+    #[test]
     fn test_to_string_dbs() {
         let bs1 = DenseBitSet::from_integer(7891234);
         let bs2 = DenseBitSet::from_integer(65536);

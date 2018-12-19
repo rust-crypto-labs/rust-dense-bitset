@@ -186,6 +186,17 @@ impl DenseBitSetExtended {
             self.state[idx+1] = (self.state[idx+1] & mask_msb) | msb;
         }
     }
+
+    /// Returns a bit-reversed bitset 
+    pub fn reverse(&self) -> Self {
+        let mut state = vec![];
+        for &s in &self.state {
+            let bs = DenseBitSet::from_integer(s).reverse().to_integer();
+            state.push(bs);
+        }
+        state.reverse();
+        Self { state, size: self.size }
+    }
 }
 
 impl BitSet for DenseBitSetExtended {
