@@ -461,7 +461,7 @@ impl BitOr for DenseBitSetExtended {
             if i < self.state.len() && i < rhs.state.len() {
                 // x | y
                 v.push(self.state[i] | rhs.state[i])
-            } else if i > self.state.len() {
+            } else if i >= self.state.len() {
                 // x | 0 == x
                 v.push(rhs.state[i])
             } else {
@@ -484,7 +484,7 @@ impl BitOrAssign for DenseBitSetExtended {
             if i < self.state.len() && i < rhs.state.len() {
                 // x | y
                 self.state[i] |= rhs.state[i]
-            } else if i > self.state.len() {
+            } else if i >= self.state.len() {
                 // x | 0 == x
                 self.state[i] = rhs.state[i]
             }
@@ -503,7 +503,7 @@ impl BitXor for DenseBitSetExtended {
             if i < self.state.len() && i < rhs.state.len() {
                 // x ^ y
                 v.push(self.state[i] ^ rhs.state[i])
-            } else if i > self.state.len() {
+            } else if i >= self.state.len() {
                 // x ^ 0 == x
                 v.push(rhs.state[i])
             } else {
@@ -526,7 +526,7 @@ impl BitXorAssign for DenseBitSetExtended {
             if i < self.state.len() && i < rhs.state.len() {
                 // x ^ y
                 self.state[i] ^= rhs.state[i]
-            } else if i > self.state.len() {
+            } else if i >= self.state.len() {
                 // x ^ 0 == x
                 self.state[i] = rhs.state[i]
             }
