@@ -144,10 +144,10 @@ impl DenseBitSetExtended {
     }
 
     /// Inserts the first `length` bits of `other` at the given `position` in the current structure
-    pub fn insert(&mut self, other: &Self, position: usize) {
-        let l = other.state.len();
+    pub fn insert(&mut self, other: &Self, position: usize, length: usize) {
+        let l = (length>>6) + 1;
         let size_before_insertion = self.size;
-        if other.size % 64 == 0 {
+        if length % 64 == 0 {
             for i in 0..l {
                 self.insert_u64(other.state[i], position + i * 64, 64);
             }
@@ -156,10 +156,10 @@ impl DenseBitSetExtended {
             for i in 0..l-1 {
                 self.insert_u64(other.state[i], position + i * 64, 64);
             }
-            self.insert_u64(other.state[l-1], position + (l-1) * 64, other.size % 64);
+            self.insert_u64(other.state[l-1], position + (l-1) * 64, length % 64);
         }
     
-        self.size = max(size_before_insertion, position + other.size);
+        self.size = max(size_before_insertion, position + length);
     }
 
     /// Inserts a `length`-bit integer as a bitset at the given `position`
@@ -227,7 +227,7 @@ impl DenseBitSetExtended {
         let mut shifted = self << shift;
         let extra = shifted.subset(size_before_shift, shift);
 
-        shifted.insert(&extra, 0);
+        shifted.insert(&extra, 0, shift_amount);
 
         shifted
     }
@@ -238,10 +238,10 @@ impl DenseBitSetExtended {
         let shift_amount = shift % self.size;
         let size_before_shift = self.size;
 
-        let extra = self.subset(0, shift);
-        let mut shifted = self >> shift;
+        let extra = self.subset(0, shift_amount);
+        let mut shifted = self >> shift_amount;
 
-        shifted.insert(&extra, size_before_shift);
+        shifted.insert(&extra, size_before_shift, shift_amount);
 
         shifted
     }
