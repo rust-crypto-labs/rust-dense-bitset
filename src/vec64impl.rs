@@ -188,7 +188,7 @@ impl DenseBitSetExtended {
             let mut u = u64::max_value();
             u ^= ((1 << length) - 1) << offset;
             self.state[idx] &= u;
-            self.state[idx] |= value << position;
+            self.state[idx] |= value << offset;
         } else {
             // Not so easy case: we need to split `value` in twain, zero the appropriate bits in the
             // two segments, and perform the insertion
@@ -573,6 +573,7 @@ impl ShlAssign<usize> for DenseBitSetExtended {
 impl Shr<usize> for DenseBitSetExtended {
     type Output = Self;
     fn shr(self, rhs: usize) -> Self {
+
         if rhs >= self.size {
             Self {
                 state: vec![],
@@ -580,7 +581,7 @@ impl Shr<usize> for DenseBitSetExtended {
             }
         } else {
             let mut v = DenseBitSetExtended::with_capacity(self.size - rhs);
-
+            
             // Note: this may not be the most efficient implementation
             for i in 0..(self.size - rhs) {
                 let source = i + rhs;
