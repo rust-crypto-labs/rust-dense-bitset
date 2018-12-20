@@ -12,7 +12,7 @@ use std::ops::{
 };
 
 /// Provides a `BitSet` implementation (only limited by available memory)
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct DenseBitSetExtended {
     state: Vec<u64>,
     size: usize,
@@ -21,8 +21,7 @@ pub struct DenseBitSetExtended {
 impl DenseBitSetExtended {
     /// Returns a new empty extended `DenseBitsetExtended`
     pub fn new() -> Self {
-        let state: Vec<u64> = Vec::new();
-        return Self { state, size: 0 };
+        Self { state: vec![], size: 0 }
     }
 
     /// Returns an empty `DenseBitsetExtended` with pre-allocated memory of `size` bits
@@ -106,10 +105,10 @@ impl DenseBitSetExtended {
 
         if actual_length + offset < 64 {
             // Remain within the boundary of an element
-            return (self.state[idx] >> offset) & ((1 << actual_length) - 1);
+            (self.state[idx] >> offset) & ((1 << actual_length) - 1)
         } else if actual_length + offset == 64 {
             // Special case to avoid masking overflow
-            return self.state[idx] >> offset;
+            self.state[idx] >> offset
         } else {
             // Possibly split between neighbour elements
 
@@ -120,11 +119,11 @@ impl DenseBitSetExtended {
 
             if self.state.len() == idx + 1 {
                 // If there is no next element, assume it is zero
-                return lsb;
+                lsb
             } else {
                 // Otherwise get the remaining bits and assemble the response
                 let msb = self.state[idx + 1] & ((1 << remainder) - 1);
-                return (msb << (64 - offset)) | lsb;
+                (msb << (64 - offset)) | lsb
             }
         }
     }
@@ -145,20 +144,19 @@ impl DenseBitSetExtended {
 
     /// Inserts the first `length` bits of `other` at the given `position` in the current structure
     pub fn insert(&mut self, other: &Self, position: usize, length: usize) {
-        let l = (length>>6) + 1;
+        let l = (length >> 6) + 1;
         let size_before_insertion = self.size;
         if length % 64 == 0 {
             for i in 0..l {
                 self.insert_u64(other.state[i], position + i * 64, 64);
             }
-        }
-        else {
-            for i in 0..l-1 {
+        } else {
+            for i in 0..l - 1 {
                 self.insert_u64(other.state[i], position + i * 64, 64);
             }
-            self.insert_u64(other.state[l-1], position + (l-1) * 64, length % 64);
+            self.insert_u64(other.state[l - 1], position + (l - 1) * 64, length % 64);
         }
-    
+
         self.size = max(size_before_insertion, position + length);
     }
 
@@ -168,9 +166,9 @@ impl DenseBitSetExtended {
         let offset = position % 64;
 
         // First, resize the bitset if necessary
-        if 1 + ((position + length)>>6)  > self.state.len()  {
+        if 1 + ((position + length) >> 6) > self.state.len() {
             // We need to extend the bitset to accomodate this insertion
-            let num_seg = 1 + ((position + length)>>6) - self.state.len();
+            let num_seg = 1 + ((position + length) >> 6) - self.state.len();
 
             for _ in 0..num_seg {
                 self.state.push(0);
@@ -182,8 +180,7 @@ impl DenseBitSetExtended {
         if offset == 0 && length == 64 {
             // Easiest case
             self.state[idx] = value;
-        }
-        else if offset + length < 64 {
+        } else if offset + length < 64 {
             // Easy case: inserting fewer than 64 bits in an u64
             let mut u = u64::max_value();
             u ^= ((1 << length) - 1) << offset;
@@ -255,7 +252,7 @@ impl DenseBitSetExtended {
         assert!(radix > 0, "Radix must be > 0");
         assert!(radix <= 32, "Radix must be <= 32");
 
-        let log_radix = (radix as u64).trailing_zeros();
+        let log_radix = u64::from(radix).trailing_zeros();
         let chunk_size = 64 / log_radix as usize;
         let mut size = 0;
 
@@ -298,13 +295,11 @@ impl BitSet for DenseBitSetExtended {
                 }
                 self.state[idx] |= 1 << offset
             }
-        // Note: To insert a zero, we do nothing, as the value is zero by default
+            // Note: To insert a zero, we do nothing, as the value is zero by default
+        } else if value {
+            self.state[idx] |= 1 << offset
         } else {
-            if value {
-                self.state[idx] |= 1 << offset
-            } else {
-                self.state[idx] &= !(1 << offset)
-            }
+            self.state[idx] &= !(1 << offset)
         }
         if position >= self.size {
             self.size = position + 1;
@@ -573,7 +568,6 @@ impl ShlAssign<usize> for DenseBitSetExtended {
 impl Shr<usize> for DenseBitSetExtended {
     type Output = Self;
     fn shr(self, rhs: usize) -> Self {
-
         if rhs >= self.size {
             Self {
                 state: vec![],
@@ -581,7 +575,7 @@ impl Shr<usize> for DenseBitSetExtended {
             }
         } else {
             let mut v = DenseBitSetExtended::with_capacity(self.size - rhs);
-            
+
             // Note: this may not be the most efficient implementation
             for i in 0..(self.size - rhs) {
                 let source = i + rhs;

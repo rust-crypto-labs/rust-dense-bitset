@@ -10,7 +10,7 @@ use std::ops::{
 };
 
 /// Provides an efficient and compact `BitSet` implementation for up to 64 bits
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct DenseBitSet {
     state: u64,
 }
@@ -37,12 +37,12 @@ impl DenseBitSet {
     }
 
     /// Returns an integer representing the bitset (little endian convention)
-    pub fn to_integer(&self) -> u64 {
+    pub fn to_integer(self) -> u64 {
         self.state
     }
 
     /// Returns an integer representation of the bitsting starting at the given `position` with given `length` (little endian convention)
-    pub fn extract(&self, position: usize, length: usize) -> u64 {
+    pub fn extract(self, position: usize, length: usize) -> u64 {
         assert!(
             position + length <= 64,
             "This implementation is currently limited to 64 bit bitsets."
@@ -77,17 +77,17 @@ impl DenseBitSet {
     }
 
     /// Returns `true` if and only if all bits are set to `true`
-    pub fn all(&self) -> bool {
+    pub fn all(self) -> bool {
         self.state == u64::max_value()
     }
 
     /// Returns `true` if at least one of the bits is set to `true`
-    pub fn any(&self) -> bool {
+    pub fn any(self) -> bool {
         self.state > 0
     }
 
     /// Returns `true` if all the bits are set to `false`
-    pub fn none(&self) -> bool {
+    pub fn none(self) -> bool {
         !self.any()
     }
 
