@@ -314,6 +314,10 @@ impl DenseBitSetExtended {
         let shift_amount = shift % self.size;
         let size_before_shift = self.size;
 
+        if shift_amount == 0 {
+            return self;
+        }
+
         let mut shifted = self << shift;
         let extra = shifted.subset(size_before_shift, shift);
 
@@ -327,6 +331,10 @@ impl DenseBitSetExtended {
         // Rotation is periodic
         let shift_amount = shift % self.size;
         let size_before_shift = self.size;
+
+        if shift_amount == 0 {
+            return self;
+        }
 
         let extra = self.subset(0, shift_amount);
         let mut shifted = self >> shift_amount;

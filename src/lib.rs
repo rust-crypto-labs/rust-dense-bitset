@@ -288,7 +288,7 @@ mod tests {
     }
 
     #[test]
-    fn test_rotr() {
+    fn test_rotr_dbs() {
         let mut bs = DenseBitSet::from_integer(0b0001110101);
         let bs_cp = bs;
         bs.rotr(40);
