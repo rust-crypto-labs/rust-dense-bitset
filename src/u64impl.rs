@@ -10,6 +10,8 @@ use std::ops::{
 };
 
 /// Provides an efficient and compact `BitSet` implementation for up to 64 bits.
+/// 
+/// This structure implements `BitSet, Clone, Copy, Default, Debug, Hash, PartialEq, Eq` and bit operations.
 #[derive(Copy, Clone, Default)]
 pub struct DenseBitSet {
     state: u64,

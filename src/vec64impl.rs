@@ -13,10 +13,9 @@ use std::ops::{
 
 /// Provides a dense `BitSet` implementation (only limited by available memory)
 ///
-/// This structure can allow you to store efficiently and manipulate a very high number
-/// of bits stored as `u64`
+/// Internally, a `Vec<u64>` data structure is used to store information.
 ///
-/// This structure implements `Clone` and `Default`
+/// This structure implements `BitSet, Clone, Default, Debug, Hash, PartialEq, Eq` and bit operations.
 #[derive(Clone, Default)]
 pub struct DenseBitSetExtended {
     state: Vec<u64>,
@@ -383,6 +382,13 @@ impl DenseBitSetExtended {
     }
 }
 
+/// This is an extended implementation of the `BitSet` trait. It dynamically resizes the bitset as necessary
+/// to accomodate growing or shrinking operations (e.g. left shifts) and is only limited by available memory. 
+/// In practice however, we (arbitrarily) limited allocation to 64000 bits. 
+///
+/// Note: The `BitSet` trait must be in scope in order to use methods from this trait. 
+/// 
+/// Note: The `Copy` trait cannot be implemented for `DenseBitSetExtended` (for the same reasons avec `Vec`). 
 impl BitSet for DenseBitSetExtended {
     fn set_bit(&mut self, position: usize, value: bool) {
         let idx = position >> 6;
