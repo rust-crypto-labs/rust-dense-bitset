@@ -70,14 +70,38 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn catch_invalid_string_dbs() {
+    fn catch_invalid_string_dbs_incorrect_char() {
         let _bs = DenseBitSet::from_string("Hello World!", 12);
     }
 
     #[test]
     #[should_panic]
-    fn catch_invalid_base_dbs() {
-        let _bs = DenseBitSet::from_string("AZRZR=", 64);
+    fn catch_invalid_string_dbse_incorrect_char() {
+        let _bs = DenseBitSetExtended::from_string(String::from("Hello World!"), 12);
+    }
+
+    #[test]
+    #[should_panic]
+    fn catch_invalid_string_dbs_incorrect_radix() {
+        let _bs = DenseBitSet::from_string("1234", 33);
+    }
+
+    #[test]
+    #[should_panic]
+    fn catch_invalid_string_dbse_incorrect_radix() {
+        let _bs = DenseBitSetExtended::from_string(String::from("1234"), 33);
+    }
+
+        #[test]
+    #[should_panic]
+    fn catch_invalid_string_dbs_incorrect_radix2() {
+        let _bs = DenseBitSet::from_string("0000", 1);
+    }
+
+    #[test]
+    #[should_panic]
+    fn catch_invalid_string_dbse_incorrect_radix2() {
+        let _bs = DenseBitSetExtended::from_string(String::from("0000"), 1);
     }
 
     #[test]
