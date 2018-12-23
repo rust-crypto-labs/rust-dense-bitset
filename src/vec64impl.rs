@@ -25,6 +25,13 @@ pub struct DenseBitSetExtended {
 
 impl DenseBitSetExtended {
     /// Returns a new empty `DenseBitsetExtended`
+    ///    
+    /// # Example
+    /// ```
+    /// use rust_dense_bitset::DenseBitSetExtended;
+    /// 
+    /// let bs = DenseBitSetExtended::new();
+    /// ```
     pub fn new() -> Self {
         Self {
             state: vec![],
@@ -35,7 +42,18 @@ impl DenseBitSetExtended {
     /// Returns an empty `DenseBitsetExtended` with pre-allocated memory of `size` bits
     ///
     /// This is useful to avoid additional allocations is situations where the bitset's
-    /// space requirements are known in advance
+    /// space requirements are known in advance. 
+    /// 
+    /// # Example
+    /// ```
+    /// # use rust_dense_bitset::{BitSet, DenseBitSetExtended};
+    /// 
+    /// let mut bs = DenseBitSetExtended::with_capacity(128);
+    /// bs.set_bit(127, true); // No additional allocation performed
+    /// ```
+    /// 
+    /// # Panics
+    /// This function will not accept `size` parameters beyond 64000 bits.
     pub fn with_capacity(size: usize) -> Self {
         assert!(
             size < 64_000,
@@ -46,6 +64,15 @@ impl DenseBitSetExtended {
     }
 
     /// Returns a `DenseBitSetExtended` extending a given `DenseBitSet`
+    /// 
+    /// # Example
+    /// ```
+    /// # use rust_dense_bitset::{BitSet, DenseBitSet, DenseBitSetExtended};
+    /// 
+    /// let dbs = DenseBitSet::from_integer(0b111000111);
+    /// let dbse = DenseBitSetExtended::from_dense_bitset(dbs);
+    /// println!("{}", dbse.to_string())
+    /// ```
     pub fn from_dense_bitset(dbs: DenseBitSet) -> Self {
         let state = vec![dbs.to_integer()];
         let size = 64;
@@ -92,7 +119,26 @@ impl DenseBitSetExtended {
 
     /// Returns an integer representation of the bitsting starting at the given `position` with given `length` (little endian convention)
     ///
-    /// Note: this method wan extract up to 64 bits into an `u64`. For larger extractions, use `extract`
+    /// Note: this method can extract up to 64 bits into an `u64`. For larger extractions, use `subset` instead. 
+    /// 
+    /// # Example
+    /// ```
+    /// # use rust_dense_bitset::{DenseBitSet, DenseBitSetExtended};
+    /// 
+    /// let dbs = DenseBitSet::from_integer(0b111000111);
+    /// let dbse = DenseBitSetExtended::from_dense_bitset(dbs);
+    /// println!("{}", dbse.extract_u64(2, 4)); // Extracts "0001" (displayed with leading zeros)
+    /// ```
+    /// 
+    /// # Panics
+    /// 
+    /// The function panics if `length` is zero
+    /// ```rust,should_panic
+    /// # use rust_dense_bitset::{DenseBitSet, DenseBitSetExtended};
+    /// # let dbs = DenseBitSet::from_integer(0b111000111);
+    /// # let dbse = DenseBitSetExtended::from_dense_bitset(dbs);
+    /// let panic_me = dbse.extract_u64(3, 0);
+    /// ```
     pub fn extract_u64(&self, position: usize, length: usize) -> u64 {
         assert!(
             length <= 64,
@@ -136,8 +182,22 @@ impl DenseBitSetExtended {
         }
     }
 
-    /// Returns a `DenseBitSetExtended` of given `length` whose bits are extracted from the given `position`
+    /// Returns a `DenseBitSetExtended` of given `length` whose bits are extracted from the given `position`. 
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// # use rust_dense_bitset::{BitSet, DenseBitSet, DenseBitSetExtended};
+    /// 
+    /// let dbs = DenseBitSet::from_integer(0b111000111);
+    /// let dbse = DenseBitSetExtended::from_dense_bitset(dbs);
+    /// println!("{}", dbse.subset(2, 4).to_string()); 
+    /// ```
     pub fn subset(&self, position: usize, length: usize) -> Self {
+        if length == 0 {
+            return Self { state: vec![], size: 0 };
+        }
+
         let segments = 1 + (length >> 6);
         let mut state = vec![];
 
@@ -151,6 +211,15 @@ impl DenseBitSetExtended {
     }
 
     /// Inserts the first `length` bits of `other` at the given `position` in the current structure
+    /// 
+    ///  # Example
+    /// ```
+    /// # use rust_dense_bitset::{DenseBitSet, DenseBitSetExtended};
+    /// let mut bs = DenseBitSetExtended::new();
+    /// let bs2 =
+    ///    DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(0b1011011101111));
+    /// bs.insert(&bs2, 60, 13);
+    /// ```
     pub fn insert(&mut self, other: &Self, position: usize, length: usize) {
         let l = (length >> 6) + 1;
         let size_before_insertion = self.size;
@@ -169,6 +238,13 @@ impl DenseBitSetExtended {
     }
 
     /// Inserts a `length`-bit integer as a bitset at the given `position`
+    /// 
+    /// # Example
+    /// ```
+    /// # use rust_dense_bitset::DenseBitSetExtended;
+    /// let mut bs = DenseBitSetExtended::new();
+    /// bs.insert_u64(0b1011011101111, 50, 64);
+    /// ```
     pub fn insert_u64(&mut self, value: u64, position: usize, length: usize) {
         let idx = position >> 6;
         let offset = position % 64;
@@ -210,6 +286,16 @@ impl DenseBitSetExtended {
     }
 
     /// Returns a bit-reversed bitset
+    /// 
+    /// # Example
+    /// ```
+    /// # use rust_dense_bitset::{BitSet, DenseBitSet, DenseBitSetExtended};
+    /// let val = 66612301234;
+    /// let dbs = DenseBitSet::from_integer(val);
+    /// let ext_dbs = DenseBitSetExtended::from_dense_bitset(dbs);
+    /// println!("{}", dbs.to_string());
+    /// println!("{}", ext_dbs.reverse().to_string());
+    /// ```
     pub fn reverse(&self) -> Self {
         let mut state = vec![];
         for &s in &self.state {
@@ -223,7 +309,9 @@ impl DenseBitSetExtended {
         }
     }
 
-    /// Returns a left rotation of the bitset by `shift` bits
+    /// Returns a left rotation of the bitset by `shift` bits.
+    /// 
+    /// Note: The bitset is extended by `shift` bits by this operation.
     pub fn rotl(self, shift: usize) -> Self {
         // Rotation is periodic
         let shift_amount = shift % self.size;
@@ -237,7 +325,7 @@ impl DenseBitSetExtended {
         shifted
     }
 
-    /// Returns a right rotation of the bitset by `shift` bits
+    /// Returns a right rotation of the bitset by `shift` bits. 
     pub fn rotr(self, shift: usize) -> Self {
         // Rotation is periodic
         let shift_amount = shift % self.size;
@@ -252,12 +340,22 @@ impl DenseBitSetExtended {
     }
 
     /// Constructs a `DenseBitSetExtended` from a provided string
+    /// 
+    /// # Example
+    /// ```
+    /// # use rust_dense_bitset::{DenseBitSetExtended};
+    /// let bs2 = DenseBitSetExtended::from_string(String::from("f8d5215a52b57ea0aeb294af576a0aeb"), 16);
+    /// ```
+    /// 
+    /// # Panics
+    /// This function expects a radix between 2 and 32 included, and will otherwise panic. 
+    /// This function will also panic if incorrect characters are provided.
     pub fn from_string(s: String, radix: u32) -> Self {
         assert!(
             radix.is_power_of_two(),
             "Only power of two radices are supported"
         );
-        assert!(radix > 0, "Radix must be > 0");
+        assert!(radix > 1, "Radix must be > 1");
         assert!(radix <= 32, "Radix must be <= 32");
 
         let log_radix = u64::from(radix).trailing_zeros();
