@@ -92,7 +92,7 @@ mod tests {
         let _bs = DenseBitSetExtended::from_string(String::from("1234"), 33);
     }
 
-        #[test]
+    #[test]
     #[should_panic]
     fn catch_invalid_string_dbs_incorrect_radix2() {
         let _bs = DenseBitSet::from_string("0000", 1);

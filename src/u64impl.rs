@@ -10,7 +10,7 @@ use std::ops::{
 };
 
 /// Provides an efficient and compact `BitSet` implementation for up to 64 bits.
-/// 
+///
 /// This structure implements `BitSet, Clone, Copy, Default, Debug, Hash, PartialEq, Eq` and bit operations.
 #[derive(Copy, Clone, Default)]
 pub struct DenseBitSet {
@@ -23,7 +23,7 @@ impl DenseBitSet {
     /// # Example
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
-    /// 
+    ///
     /// let mut bs = DenseBitSet::new();
     /// ```
     pub fn new() -> Self {
@@ -35,7 +35,7 @@ impl DenseBitSet {
     /// # Example
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
-    /// 
+    ///
     /// let bs = DenseBitSet::from_integer(1234567890);
     /// ```
     pub fn from_integer(i: u64) -> Self {
@@ -49,13 +49,13 @@ impl DenseBitSet {
     /// # Example
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
-    /// 
+    ///
     /// let mut bs1 = DenseBitSet::from_string("101010", 2);
     /// let mut bs2 = DenseBitSet::from_string("2a", 16);
     ///
     /// assert_eq!(bs1,bs2);
     /// ```
-    /// 
+    ///
     /// # Panics
     ///  
     /// This function will panic if an incorrect `base` is provided or if invalid
@@ -72,7 +72,7 @@ impl DenseBitSet {
     /// # Example
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
-    /// 
+    ///
     /// let bs = DenseBitSet::from_integer(1234);
     ///
     /// assert_eq!(bs.to_integer(), 1234);
@@ -86,13 +86,13 @@ impl DenseBitSet {
     /// # Example
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
-    /// 
+    ///
     /// let bs = DenseBitSet::from_integer(0b11110101010010);
     /// let value = bs.extract(5,6);
     ///
     /// assert_eq!(value, 42);
     /// ```
-    /// 
+    ///
     /// # Panics
     /// This function will panic if `length` is zero or if one tries to
     /// access a bit beyond the 64 bit limit (i.e., `position + length > 64`).
@@ -118,14 +118,14 @@ impl DenseBitSet {
     /// # Example
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
-    /// 
+    ///
     /// let mut bs = DenseBitSet::new();
     /// bs.insert(10, 8, 0b10101011);
     /// bs.insert(3,1,1);
     ///
     /// assert_eq!(bs.to_integer(), 0b101010110000001000)
     /// ```
-    /// 
+    ///
     /// # Panics
     /// This function will panic if `length` is zero, or if one tries to
     /// insert a bit beyond the 64 bit limit (i.e. `position + length > 64`)
@@ -151,7 +151,7 @@ impl DenseBitSet {
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
     /// use rust_dense_bitset::BitSet;
-    /// 
+    ///
     /// let mut bs = DenseBitSet::from_integer(u64::max_value());
     ///
     /// assert!(bs.all());
@@ -169,7 +169,7 @@ impl DenseBitSet {
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
     /// use rust_dense_bitset::BitSet;
-    /// 
+    ///
     /// let mut bs = DenseBitSet::from_integer(2048);
     ///
     /// assert!(bs.any());
@@ -187,7 +187,7 @@ impl DenseBitSet {
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
     /// use rust_dense_bitset::BitSet;
-    /// 
+    ///
     /// let mut bs = DenseBitSet::from_integer(2048);
     /// bs.set_bit(11,false);
     ///
@@ -204,7 +204,7 @@ impl DenseBitSet {
     /// # Example
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
-    /// 
+    ///
     /// let bs = DenseBitSet::from_integer(0b11110001);
     /// let bs2 = bs.reverse();
     ///
@@ -224,15 +224,15 @@ impl DenseBitSet {
     /// Right rotation of `shift` bits.
     ///
     /// Shifts the bits to the right, wrapping the truncated bits to the end of the bitset.
-    /// 
+    ///
     /// The rotation is done in-place, so the bitset needs to be mutable.
-    /// # Example 
+    /// # Example
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
-    /// 
+    ///
     /// let mut bs = DenseBitSet::from_integer(0b111000111000111000111);
     /// bs.rotr(10);
-    /// 
+    ///
     /// assert_eq!(bs.to_integer(), 0b111000111000000000000000000000000000000000000000000011100011100 );
     /// ```
     pub fn rotr(&mut self, shift: u32) {
@@ -244,13 +244,13 @@ impl DenseBitSet {
     /// Shifts the bits to the left, wrapping the truncated bits to the beginning of the bitset.
     ///  
     /// The rotation is done in place, so the bitset needs to be mutable.
-    /// # Example 
+    /// # Example
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
-    /// 
+    ///
     /// let mut bs = DenseBitSet::from_integer(0b111000111000111000111);
     /// bs.rotl(10);
-    /// 
+    ///
     /// assert_eq!(bs.to_integer(), 0b1110001110001110001110000000000 );
     /// ```
     pub fn rotl(&mut self, shift: u32) {
@@ -259,20 +259,20 @@ impl DenseBitSet {
 }
 
 /// This is a compact implementation of the `BitSet` trait over a 64-bit word (which is the native
-/// word size for many architectures), allowing for efficient operations and compact memory usage. 
-/// 
+/// word size for many architectures), allowing for efficient operations and compact memory usage.
+///
 /// Modifiers and accessors are boundary checked to ensure that operations remain within that 64 bit range.
 ///
-/// Note: The `BitSet` trait must be in scope in order to use methods from this trait. 
+/// Note: The `BitSet` trait must be in scope in order to use methods from this trait.
 impl BitSet for DenseBitSet {
-    /// Sets the bit at index `position` to `value`. 
+    /// Sets the bit at index `position` to `value`.
     /// The bitset needs to be mutable for this operation to succeed.
     ///
     /// # Example
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
     /// use rust_dense_bitset::BitSet;
-    /// 
+    ///
     /// let mut bs = DenseBitSet::new();
     /// bs.set_bit(25, true); // This sets the bit at index 25 , hence the 26th bit -> 2^25
     ///
@@ -296,7 +296,7 @@ impl BitSet for DenseBitSet {
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
     /// use rust_dense_bitset::BitSet;
-    /// 
+    ///
     /// let bs = DenseBitSet::from_integer(65536);
     ///
     /// assert!(bs.get_bit(16));
@@ -316,7 +316,7 @@ impl BitSet for DenseBitSet {
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
     /// use rust_dense_bitset::BitSet;
-    /// 
+    ///
     /// let bs = DenseBitSet::from_integer(0b01100100111010);
     ///
     /// println!("{}", bs.get_weight()); // -> 7
@@ -332,7 +332,7 @@ impl BitSet for DenseBitSet {
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
     /// use rust_dense_bitset::BitSet;
-    /// 
+    ///
     /// let mut bs = DenseBitSet::from_integer(1234567890);
     /// bs.reset();
     ///
@@ -348,7 +348,7 @@ impl BitSet for DenseBitSet {
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
     /// use rust_dense_bitset::BitSet;
-    /// 
+    ///
     /// let bs = DenseBitSet::from_integer(68719481088);
     ///
     /// println!("{}", bs.to_string()) // -> "0000000000000000000000000001000000000000000000000001000100000000"
