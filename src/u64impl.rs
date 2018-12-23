@@ -16,12 +16,22 @@ pub struct DenseBitSet {
 }
 
 impl DenseBitSet {
-    /// Returns a new empty bitset
+    /// Returns a new empty `DenseBitSet`
+    ///
+    /// # Example
+    /// ```
+    /// let mut bs = DenseBitset::new();
+    /// ```
     pub fn new() -> Self {
         Self { state: 0 }
     }
 
     /// Generates a bitset from an integer (little endian convention)
+    ///
+    /// # Example
+    /// ```
+    /// let bs = DenseBitSet::from_integer(1234567890);
+    /// ```
     pub fn from_integer(i: u64) -> Self {
         Self { state: i }
     }
@@ -29,6 +39,14 @@ impl DenseBitSet {
     /// Generates a bitset from a string and a base (little endian convention)
     ///
     /// The `base` must be an integer between 2 and 32
+    ///
+    /// # Example
+    /// ```
+    /// let mut bs1 = DenseBitSet::from_string("0b101010", 2);
+    /// let mut bs2 = DenseBitSet::from_string("0x2a", 16);
+    ///
+    /// assert_eq!(bs1,bs2);
+    /// ```
     pub fn from_string(s: &str, base: u32) -> Self {
         assert!(2 <= base && base <= 32, "Only supports base from 2 to 32");
         let val = u64::from_str_radix(s, base);
@@ -37,11 +55,24 @@ impl DenseBitSet {
     }
 
     /// Returns an integer representing the bitset (little endian convention)
+    ///
+    /// # Example
+    /// ```
+    /// let bs = DenseBitSet::from_integer(1234);
+    /// assert_eq!(bs.to_integer(), 1234);
+    /// ```
     pub fn to_integer(self) -> u64 {
         self.state
     }
 
-    /// Returns an integer representation of the bitsting starting at the given `position` with given `length` (little endian convention)
+    /// Returns an integer representation of the bitset starting at the given `position` with given `length` (little endian convention)
+    ///
+    /// # Example
+    /// ```
+    /// let bs = DenseBitSet::from_integer(0b11110101010010);
+    /// let value = bs.extract(5,6);
+    /// assert_eq!(value, 42);
+    /// ```
     pub fn extract(self, position: usize, length: usize) -> u64 {
         assert!(
             position + length <= 64,
@@ -118,7 +149,17 @@ impl DenseBitSet {
     }
 }
 
+/// In this implementation, as we are only limited to 64 bits, modifiers and accessors are boundary checked
 impl BitSet for DenseBitSet {
+    /// Sets the bit at index `position` to `value`
+    /// The bitset needs to be mutable.
+    ///
+    /// # Example
+    /// ```
+    /// let mut bs = DenseBitSet::new();
+    /// bs.set_bit(25, true); // The set the bit at index 25 , hence the 26th bit -> 2^25
+    /// assert_eq!(bs.to_integer(), 33554432);
+    /// ```
     fn set_bit(&mut self, position: usize, value: bool) {
         assert!(
             position < 64,

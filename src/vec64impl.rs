@@ -11,7 +11,12 @@ use std::ops::{
     ShrAssign,
 };
 
-/// Provides a `BitSet` implementation (only limited by available memory)
+/// Provides a dense `BitSet` implementation (only limited by available memory)
+///
+/// This structure can allow you to store efficiently and manipulate a very high number
+/// of bits stored as `u64`
+///
+/// This structure implements `Clone` and `Default`
 #[derive(Clone, Default)]
 pub struct DenseBitSetExtended {
     state: Vec<u64>,
@@ -19,9 +24,12 @@ pub struct DenseBitSetExtended {
 }
 
 impl DenseBitSetExtended {
-    /// Returns a new empty extended `DenseBitsetExtended`
+    /// Returns a new empty `DenseBitsetExtended`
     pub fn new() -> Self {
-        Self { state: vec![], size: 0 }
+        Self {
+            state: vec![],
+            size: 0,
+        }
     }
 
     /// Returns an empty `DenseBitsetExtended` with pre-allocated memory of `size` bits
@@ -295,7 +303,7 @@ impl BitSet for DenseBitSetExtended {
                 }
                 self.state[idx] |= 1 << offset
             }
-            // Note: To insert a zero, we do nothing, as the value is zero by default
+        // Note: To insert a zero, we do nothing, as the value is zero by default
         } else if value {
             self.state[idx] |= 1 << offset
         } else {
