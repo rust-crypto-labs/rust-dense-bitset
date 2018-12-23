@@ -59,6 +59,7 @@ impl DenseBitSet {
     /// # Example
     /// ```
     /// let bs = DenseBitSet::from_integer(1234);
+    ///
     /// assert_eq!(bs.to_integer(), 1234);
     /// ```
     pub fn to_integer(self) -> u64 {
@@ -71,6 +72,7 @@ impl DenseBitSet {
     /// ```
     /// let bs = DenseBitSet::from_integer(0b11110101010010);
     /// let value = bs.extract(5,6);
+    ///
     /// assert_eq!(value, 42);
     /// ```
     pub fn extract(self, position: usize, length: usize) -> u64 {
@@ -91,6 +93,15 @@ impl DenseBitSet {
     ///
     /// Note that `value` is treated as a `length`-bit integer (little endian convention);
     /// if necessary, `value` is padded with zeros (or truncated) to be of the correct length
+    ///
+    /// # Example
+    /// ```
+    /// let mut bs = DenseBitSet::new();
+    /// bs.insert(10, 8, 0b10101011);
+    /// bs.insert(3,1,1);
+    ///
+    /// assert_eq!(bs.to_integer(), 0b101010110000001000)
+    /// ```
     pub fn insert(&mut self, position: usize, length: usize, value: u64) {
         assert!(
             position + length <= 64,
@@ -108,21 +119,59 @@ impl DenseBitSet {
     }
 
     /// Returns `true` if and only if all bits are set to `true`
+    ///
+    /// # Example
+    /// ```
+    /// let mut bs = DenseBitSet::from_integer(u64::max_value());
+    ///
+    /// assert!(bs.all());
+    ///
+    /// bs.set_bit(28,false);
+    /// bs.all() // -> false
+    /// ```
     pub fn all(self) -> bool {
         self.state == u64::max_value()
     }
 
     /// Returns `true` if at least one of the bits is set to `true`
+    ///
+    /// # Example
+    /// ```
+    /// let mut bs = DenseBitSet::from_integer(2048);
+    ///
+    /// assert!(bs.any());
+    ///
+    /// bs.set_bit(11,false);
+    /// bs.any() // -> false
+    /// ```
     pub fn any(self) -> bool {
         self.state > 0
     }
 
     /// Returns `true` if all the bits are set to `false`
+    ///
+    /// # Example
+    /// ```
+    /// let mut bs = DenseBitSet::from_integer(2048);
+    /// bs.set_bit(11,false);
+    ///
+    /// assert!(bs.none());
+    /// ```
     pub fn none(self) -> bool {
         !self.any()
     }
 
     /// Returns a bit-reversed `DenseBitSet`
+    ///
+    /// This method is using a constant time bit reverse algorithm for 64 bits integers
+    ///
+    /// # Example
+    /// ```
+    /// let bs = DensebitSet::from_integer(0b11110001);
+    /// let bs2 = bs.reverse();
+    ///
+    /// assert_eq!(bs2.to_integer(), 0b10001111);
+    /// ```
     pub fn reverse(self) -> Self {
         let mut v = self.state;
         v = ((v >> 1) & (0x5555555555555555 as u64)) | ((v & (0x5555555555555555 as u64)) << 1);
@@ -137,6 +186,15 @@ impl DenseBitSet {
     /// Right rotation of `shift` bits
     ///
     /// Shifts the bits to the right, wrapping the truncated bits to the end of the set
+    /// 
+    /// The rotation is done in place, so the set needs to be mutable
+    /// # Example 
+    /// ```
+    /// let mut bs = DenseBitSet::from_integer(0b111000111000111000111);
+    /// bs.rotr(10);
+    /// 
+    /// assert_eq!(bs.to_integer(), 0b111000111000000000000000000000000000000000000000000011100011100 );
+    /// ```
     pub fn rotr(&mut self, shift: u32) {
         self.state = self.state.rotate_right(shift);
     }
@@ -144,12 +202,23 @@ impl DenseBitSet {
     /// Left rotation of `shift` bits
     ///
     /// Shifts the bits to the left, wrapping the truncated bits to the beginning of the set
+    ///  
+    /// The rotation is done in place, so the set needs to be mutable
+    /// # Example 
+    /// ```
+    /// let mut bs = DenseBitSet::from_integer(0b111000111000111000111);
+    /// bs.rotl(10);
+    /// 
+    /// assert_eq!(bs.to_integer(), 0b1110001110001110001110000000000 );
+    /// ```
     pub fn rotl(&mut self, shift: u32) {
         self.state = self.state.rotate_left(shift);
     }
 }
 
 /// In this implementation, as we are only limited to 64 bits, modifiers and accessors are boundary checked
+///
+/// You need to specifiy `use rust_dense_bitset::BitSet` in order to use methods from this trait
 impl BitSet for DenseBitSet {
     /// Sets the bit at index `position` to `value`
     /// The bitset needs to be mutable.
@@ -157,7 +226,8 @@ impl BitSet for DenseBitSet {
     /// # Example
     /// ```
     /// let mut bs = DenseBitSet::new();
-    /// bs.set_bit(25, true); // The set the bit at index 25 , hence the 26th bit -> 2^25
+    /// bs.set_bit(25, true); // This sets the bit at index 25 , hence the 26th bit -> 2^25
+    ///
     /// assert_eq!(bs.to_integer(), 33554432);
     /// ```
     fn set_bit(&mut self, position: usize, value: bool) {
@@ -172,6 +242,14 @@ impl BitSet for DenseBitSet {
         }
     }
 
+    /// Get the bit at index `position`
+    ///
+    /// # Example
+    /// ```
+    /// let bs = DenseBitSet::from_integer(65536);
+    ///
+    /// assert!(bs.get_bit(16));
+    /// ```
     fn get_bit(&self, position: usize) -> bool {
         assert!(
             position < 64,
@@ -181,14 +259,40 @@ impl BitSet for DenseBitSet {
         (self.state >> position) & 1 == 1
     }
 
+    /// Returns the hamming weight of the set, or in other words, the number of bits set to true
+    ///
+    /// # Example
+    /// ```
+    /// let bs = DenseBitSet::from_integer(0b01100100111010);
+    ///
+    /// println!("{}", bs.get_weight()); // -> 7
+    /// ```
     fn get_weight(&self) -> u32 {
         self.state.count_ones()
     }
 
+    /// This resets the set to its default value
+    /// The set needs to be mutable
+    ///
+    /// # Example
+    /// ```
+    /// let mut bs = DenseBitSet::from_integer(1234567890);
+    /// bs.reset();
+    ///
+    /// assert!(bs.none());
+    /// ```
     fn reset(&mut self) {
         self.state = 0
     }
 
+    /// Returns a binary representation of the bitset in a string
+    ///
+    /// # Example
+    /// ```
+    /// let bs = DenseBitSet::from_integer(68719481088);
+    ///
+    /// println!("{}", bs.to_string()) // -> "0000000000000000000000000001000000000000000000000001000100000000"
+    /// ```
     fn to_string(self) -> String {
         format!("{:064b}", self.state)
     }
