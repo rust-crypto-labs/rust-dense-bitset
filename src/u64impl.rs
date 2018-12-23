@@ -9,14 +9,14 @@ use std::ops::{
     ShrAssign,
 };
 
-/// Provides an efficient and compact `BitSet` implementation for up to 64 bits
+/// Provides an efficient and compact `BitSet` implementation for up to 64 bits.
 #[derive(Copy, Clone, Default)]
 pub struct DenseBitSet {
     state: u64,
 }
 
 impl DenseBitSet {
-    /// Returns a new empty `DenseBitSet`
+    /// Returns a new empty `DenseBitSet`.
     ///
     /// # Example
     /// ```
@@ -28,7 +28,7 @@ impl DenseBitSet {
         Self { state: 0 }
     }
 
-    /// Generates a bitset from an integer (little endian convention)
+    /// Generates a bitset from an integer (little endian convention).
     ///
     /// # Example
     /// ```
@@ -40,9 +40,9 @@ impl DenseBitSet {
         Self { state: i }
     }
 
-    /// Generates a bitset from a string and a base (little endian convention)
+    /// Generates a bitset from a string and a base (little endian convention).
     ///
-    /// The `base` must be an integer between 2 and 32
+    /// The `base` must be an integer between 2 and 32.
     ///
     /// # Example
     /// ```
@@ -53,6 +53,11 @@ impl DenseBitSet {
     ///
     /// assert_eq!(bs1,bs2);
     /// ```
+    /// 
+    /// # Panics
+    ///  
+    /// This function will panic if an incorrect `base` is provided or if invalid
+    /// characters are found when parsing.
     pub fn from_string(s: &str, base: u32) -> Self {
         assert!(2 <= base && base <= 32, "Only supports base from 2 to 32");
         let val = u64::from_str_radix(s, base);
@@ -60,7 +65,7 @@ impl DenseBitSet {
         Self { state: res }
     }
 
-    /// Returns an integer representing the bitset (little endian convention)
+    /// Returns an integer representing the bitset (little endian convention).
     ///
     /// # Example
     /// ```
@@ -74,7 +79,7 @@ impl DenseBitSet {
         self.state
     }
 
-    /// Returns an integer representation of the bitset starting at the given `position` with given `length` (little endian convention)
+    /// Returns an integer representation of the bitset starting at the given `position` with given `length` (little endian convention).
     ///
     /// # Example
     /// ```
@@ -85,6 +90,10 @@ impl DenseBitSet {
     ///
     /// assert_eq!(value, 42);
     /// ```
+    /// 
+    /// # Panics
+    /// This function will panic if `length` is zero or if one tries to
+    /// access a bit beyond the 64 bit limit (i.e., `position + length > 64`).
     pub fn extract(self, position: usize, length: usize) -> u64 {
         assert!(
             position + length <= 64,
@@ -102,7 +111,7 @@ impl DenseBitSet {
     /// Returns nothing, mutates the `DenseBitSet` to insert `value` at the given `position`.
     ///
     /// Note that `value` is treated as a `length`-bit integer (little endian convention);
-    /// if necessary, `value` is padded with zeros (or truncated) to be of the correct length
+    /// if necessary, `value` is padded with zeros (or truncated) to be of the correct length.
     ///
     /// # Example
     /// ```
@@ -114,6 +123,10 @@ impl DenseBitSet {
     ///
     /// assert_eq!(bs.to_integer(), 0b101010110000001000)
     /// ```
+    /// 
+    /// # Panics
+    /// This function will panic if `length` is zero, or if one tries to
+    /// insert a bit beyond the 64 bit limit (i.e. `position + length > 64`)
     pub fn insert(&mut self, position: usize, length: usize, value: u64) {
         assert!(
             position + length <= 64,
@@ -130,7 +143,7 @@ impl DenseBitSet {
         }
     }
 
-    /// Returns `true` if and only if all bits are set to `true`
+    /// Returns `true` if and only if all bits are set to `true`.
     ///
     /// # Example
     /// ```
@@ -148,7 +161,7 @@ impl DenseBitSet {
         self.state == u64::max_value()
     }
 
-    /// Returns `true` if at least one of the bits is set to `true`
+    /// Returns `true` if at least one of the bits is set to `true`.
     ///
     /// # Example
     /// ```
@@ -166,7 +179,7 @@ impl DenseBitSet {
         self.state > 0
     }
 
-    /// Returns `true` if all the bits are set to `false`
+    /// Returns `true` if all the bits are set to `false`.
     ///
     /// # Example
     /// ```
@@ -182,9 +195,9 @@ impl DenseBitSet {
         !self.any()
     }
 
-    /// Returns a bit-reversed `DenseBitSet`
+    /// Returns a bit-reversed `DenseBitSet`.
     ///
-    /// This method is using a constant time bit reverse algorithm for 64 bits integers
+    /// This method is using a constant time bit reversal algorithm for 64 bits integers.
     ///
     /// # Example
     /// ```
@@ -206,11 +219,11 @@ impl DenseBitSet {
         }
     }
 
-    /// Right rotation of `shift` bits
+    /// Right rotation of `shift` bits.
     ///
-    /// Shifts the bits to the right, wrapping the truncated bits to the end of the set
+    /// Shifts the bits to the right, wrapping the truncated bits to the end of the bitset.
     /// 
-    /// The rotation is done in place, so the set needs to be mutable
+    /// The rotation is done in-place, so the bitset needs to be mutable.
     /// # Example 
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
@@ -224,11 +237,11 @@ impl DenseBitSet {
         self.state = self.state.rotate_right(shift);
     }
 
-    /// Left rotation of `shift` bits
+    /// Left rotation of `shift` bits.
     ///
-    /// Shifts the bits to the left, wrapping the truncated bits to the beginning of the set
+    /// Shifts the bits to the left, wrapping the truncated bits to the beginning of the bitset.
     ///  
-    /// The rotation is done in place, so the set needs to be mutable
+    /// The rotation is done in place, so the bitset needs to be mutable.
     /// # Example 
     /// ```
     /// use rust_dense_bitset::DenseBitSet;
@@ -243,12 +256,15 @@ impl DenseBitSet {
     }
 }
 
-/// In this implementation, as we are only limited to 64 bits, modifiers and accessors are boundary checked
+/// This is a compact implementation of the `BitSet` trait over a 64-bit word (which is the native
+/// word size for many architectures), allowing for efficient operations and compact memory usage. 
+/// 
+/// Modifiers and accessors are boundary checked to ensure that operations remain within that 64 bit range.
 ///
-/// You need to specifiy `use rust_dense_bitset::BitSet` in order to use methods from this trait
+/// Note: The `BitSet` trait must be in scope in order to use methods from this trait. 
 impl BitSet for DenseBitSet {
-    /// Sets the bit at index `position` to `value`
-    /// The bitset needs to be mutable.
+    /// Sets the bit at index `position` to `value`. 
+    /// The bitset needs to be mutable for this operation to succeed.
     ///
     /// # Example
     /// ```
@@ -272,7 +288,7 @@ impl BitSet for DenseBitSet {
         }
     }
 
-    /// Get the bit at index `position`
+    /// Get the bit at index `position`.
     ///
     /// # Example
     /// ```
@@ -292,7 +308,7 @@ impl BitSet for DenseBitSet {
         (self.state >> position) & 1 == 1
     }
 
-    /// Returns the hamming weight of the set, or in other words, the number of bits set to true
+    /// Returns the bitset's Hamming weight (in other words, the number of bits set to true).
     ///
     /// # Example
     /// ```
@@ -307,8 +323,8 @@ impl BitSet for DenseBitSet {
         self.state.count_ones()
     }
 
-    /// This resets the set to its default value
-    /// The set needs to be mutable
+    /// This resets the bitset to its empty state.
+    /// (The bitset must be mutable for this operation).
     ///
     /// # Example
     /// ```
@@ -324,7 +340,7 @@ impl BitSet for DenseBitSet {
         self.state = 0
     }
 
-    /// Returns a binary representation of the bitset in a string
+    /// Returns a representation of the bitset as a `String`.
     ///
     /// # Example
     /// ```
