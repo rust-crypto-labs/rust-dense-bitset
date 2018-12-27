@@ -386,6 +386,24 @@ impl DenseBitSetExtended {
         }
         Self { state, size }
     }
+
+    /// Returns the position of the first set bit (little endian convention)
+    /// 
+    /// # Example
+    /// ```
+    /// # use rust_dense_bitset::{DenseBitSet,DenseBitSetExtended};
+    /// let dbs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(256) ) << 12;
+    /// println!("{}", dbs.first_set());
+    /// ```
+    pub fn first_set(self) -> usize {
+        for i in 0..self.state.len() {
+            let cur = self.state[i] ;
+            if cur != 0 {
+                return i*64 + (cur.trailing_zeros() as usize);
+            }
+        }
+        self.size
+    }
 }
 
 /// This is an extended implementation of the `BitSet` trait. It dynamically resizes the bitset as necessary

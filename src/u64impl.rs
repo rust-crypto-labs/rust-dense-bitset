@@ -256,6 +256,18 @@ impl DenseBitSet {
     pub fn rotl(&mut self, shift: u32) {
         self.state = self.state.rotate_left(shift);
     }
+
+    /// Returns the position of the first set bit (little endian convention)
+    /// 
+    /// # Example
+    /// ```
+    /// # use rust_dense_bitset::DenseBitSet;
+    /// let dbs = DenseBitSet::from_integer(256);
+    /// println!("{}", dbs.first_set());
+    /// ```
+    pub fn first_set(self) -> u32 {
+        self.state.trailing_zeros()
+    }
 }
 
 /// This is a compact implementation of the `BitSet` trait over a 64-bit word (which is the native

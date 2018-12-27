@@ -18,6 +18,18 @@ mod tests {
     }
 
     #[test]
+    fn test_first_set_dbs() {
+        let dbs = DenseBitSet::from_integer(256);
+        assert_eq!(8, dbs.first_set());
+    }
+
+    #[test]
+    fn test_first_set_dbse() {
+        let dbs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(256) ) << 223;
+        assert_eq!(231, dbs.first_set());
+    }
+
+    #[test]
     fn test_reverse_dbse() {
         let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(666123)) >> 63;
         let rs = bs.reverse();
