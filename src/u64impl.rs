@@ -258,7 +258,7 @@ impl DenseBitSet {
     }
 
     /// Returns the position of the first set bit (little endian convention)
-    /// 
+    ///
     /// # Example
     /// ```
     /// # use rust_dense_bitset::DenseBitSet;

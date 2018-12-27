@@ -25,7 +25,7 @@ mod tests {
 
     #[test]
     fn test_first_set_dbse() {
-        let dbs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(256) ) << 223;
+        let dbs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(256)) << 223;
         assert_eq!(231, dbs.first_set());
     }
 
@@ -633,4 +633,16 @@ mod tests {
         assert_eq!(bs.to_string(), "00000000000000000000000000000000000000000000000000000001011011101111000000000000000000000000000000000000000000000000000000000000");
     }
 
+    #[test]
+    fn test_readme() {
+        let mut bs = DenseBitSetExtended::from_string(
+            String::from("f001eddadf411eddec0de5ca1ab1ec0feefeeb1e01dc0b01"),
+            16,
+        );
+        let bs2 =
+            DenseBitSetExtended::from_string(String::from("0J2aG5BaMRS443FEBRGS5DTMV2A"), 32) ;
+        bs = bs.rotr(17) | (bs2 << 43);
+        bs.set_bit(123, true);
+        println!("{}", bs.subset(3, 64).to_string());
+    }
 }

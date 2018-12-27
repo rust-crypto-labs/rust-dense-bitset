@@ -388,7 +388,7 @@ impl DenseBitSetExtended {
     }
 
     /// Returns the position of the first set bit (little endian convention)
-    /// 
+    ///
     /// # Example
     /// ```
     /// # use rust_dense_bitset::{DenseBitSet,DenseBitSetExtended};
@@ -397,9 +397,9 @@ impl DenseBitSetExtended {
     /// ```
     pub fn first_set(self) -> usize {
         for i in 0..self.state.len() {
-            let cur = self.state[i] ;
+            let cur = self.state[i];
             if cur != 0 {
-                return i*64 + (cur.trailing_zeros() as usize);
+                return i * 64 + (cur.trailing_zeros() as usize);
             }
         }
         self.size
