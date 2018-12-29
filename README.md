@@ -54,6 +54,7 @@ cargo test
 
 ### Running the benchmarks
 
+The `Criterion` dependency is used to provide precise benchmarkings. Benchmarks can be run with
 ```
 cargo bench
 ```

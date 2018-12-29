@@ -1,8 +1,13 @@
 [package]
-name = "rust-dense-bitset"
+name = "rsdbs"
 version = "0.1.0"
 edition = "2018"
 description = "Efficient and compact bitsets for Rust."
 license = "MIT"
 
-[dependencies]
+[dev-dependencies]
+criterion = "0.2"
+
+[[bench]]
+name = "benchmark"
+harness = false
