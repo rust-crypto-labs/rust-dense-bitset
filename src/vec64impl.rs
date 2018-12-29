@@ -16,7 +16,7 @@ use std::ops::{
 /// Internally, a `Vec<u64>` data structure is used to store information.
 ///
 /// This structure implements `BitSet, Clone, Default, Debug, Hash, PartialEq, Eq` and bit operations.
-#[derive(Clone, Default)]
+#[derive(Default, Clone)]
 pub struct DenseBitSetExtended {
     state: Vec<u64>,
     size: usize,
@@ -395,7 +395,7 @@ impl DenseBitSetExtended {
     /// let dbs = DenseBitSetExtended::from_dense_bitset( DenseBitSet::from_integer(256) ) << 12;
     /// println!("{}", dbs.first_set());
     /// ```
-    pub fn first_set(self) -> usize {
+    pub fn first_set(&self) -> usize {
         for i in 0..self.state.len() {
             let cur = self.state[i];
             if cur != 0 {

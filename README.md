@@ -52,6 +52,12 @@ Each individual function is tested. Run the tests with
 cargo test
 ```
 
+### Running the benchmarks
+
+```
+cargo bench
+```
+
 ## Documentation
 
 Generate the documentation with

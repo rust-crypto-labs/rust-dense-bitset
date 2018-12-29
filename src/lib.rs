@@ -1,3 +1,5 @@
+#![feature(test)]
+
 mod bitset;
 mod u64impl;
 mod vec64impl;
@@ -6,9 +8,13 @@ pub use crate::bitset::BitSet;
 pub use crate::u64impl::DenseBitSet;
 pub use crate::vec64impl::DenseBitSetExtended;
 
+extern crate test;
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    use test::Bencher;
 
     #[test]
     fn test_reverse_dbs() {
@@ -17,10 +23,23 @@ mod tests {
         assert_eq!(srev, bs.reverse().to_string());
     }
 
+    #[bench]
+    fn bench_reverse_dbs(b: &mut Bencher) {
+        let bs = DenseBitSet::from_integer(666123);
+
+        b.iter(|| bs.reverse());
+    }
+
     #[test]
     fn test_first_set_dbs() {
         let dbs = DenseBitSet::from_integer(256);
         assert_eq!(8, dbs.first_set());
+    }
+
+    #[bench]
+    fn bench_first_set_dbs(b: &mut Bencher) {
+        let dbs = DenseBitSet::from_integer(256);
+        b.iter(|| dbs.first_set());
     }
 
     #[test]
@@ -29,12 +48,24 @@ mod tests {
         assert_eq!(231, dbs.first_set());
     }
 
+    #[bench]
+    fn bench_first_set_dbse(b: &mut Bencher) {
+        let dbs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(256)) << 223;
+        b.iter(|| dbs.first_set());
+    }
+
     #[test]
     fn test_reverse_dbse() {
         let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(666123)) >> 63;
         let rs = bs.reverse();
         let srev = bs.to_string().chars().rev().collect::<String>();
         assert_eq!(srev, rs.to_string());
+    }
+
+    #[bench]
+    fn bench_reverse_dbse(b: &mut Bencher) {
+        let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(666123)) >> 1063;
+        b.iter(|| bs.reverse());
     }
 
     #[test]
@@ -51,11 +82,24 @@ mod tests {
         )
     }
 
+    #[bench]
+    fn bench_to_string_dbs(b: &mut Bencher) {
+        let bs = DenseBitSet::from_integer(7891234);
+        b.iter(|| bs.to_string());
+    }
+
     #[test]
     fn test_to_string_dbse() {
         let mut bs1 = DenseBitSetExtended::with_capacity(100);
         bs1.set_bit(99, true);
         assert_eq!(bs1.to_string(), "00000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+    }
+
+    #[bench]
+    fn bench_to_string_dbse(b: &mut Bencher) {
+        let mut bs = DenseBitSetExtended::with_capacity(100);
+        bs.set_bit(99, true);
+        b.iter(|| bs.clone().to_string());
     }
 
     #[test]
@@ -69,6 +113,11 @@ mod tests {
         assert_eq!(bs3.to_integer(), 123465);
     }
 
+    #[bench]
+    fn bench_from_string_dbs(b: &mut Bencher) {
+        b.iter(|| DenseBitSet::from_string("deadc0fee", 16));
+    }
+
     #[test]
     fn test_from_string_dbse() {
         let val = "11111000110101010010000101011010010100101011010101111110101000001010111010110010100101001010111101010111011010100000101011101011";
@@ -78,6 +127,13 @@ mod tests {
         let bs2 =
             DenseBitSetExtended::from_string(String::from("f8d5215a52b57ea0aeb294af576a0aeb"), 16);
         assert_eq!(bs2.to_string(), val);
+    }
+
+    #[bench]
+    fn bench_from_string_dbse(b: &mut Bencher) {
+        b.iter(|| {
+            DenseBitSetExtended::from_string(String::from("f8d5215a52b57ea0aeb294af576a0aeb"), 16)
+        });
     }
 
     #[test]
@@ -124,12 +180,24 @@ mod tests {
         }
     }
 
+    #[bench]
+    fn bench_set_bit_dbs(b: &mut Bencher) {
+        let mut bs = DenseBitSet::from_integer(0);
+        b.iter(|| bs.set_bit(37, true))
+    }
+
     #[test]
     fn no_crash_on_insertion_dbse() {
         let mut bs = DenseBitSetExtended::with_capacity(10);
         for i in 0..1024 {
             bs.set_bit(i, true);
         }
+    }
+
+    #[bench]
+    fn bench_set_bit_dbse(b: &mut Bencher) {
+        let mut bs = DenseBitSetExtended::with_capacity(100);
+        b.iter(|| bs.set_bit(37, true))
     }
 
     #[test]
@@ -143,6 +211,12 @@ mod tests {
         assert_eq!(bs3.get_weight(), 64);
     }
 
+    #[bench]
+    fn bench_hamming_weight_dbs(b: &mut Bencher) {
+        let bs = DenseBitSet::from_integer(1234567890);
+        b.iter(|| bs.get_weight());
+    }
+
     #[test]
     fn no_crash_on_read_dbs() {
         let bs = DenseBitSet::from_integer(1234567890);
@@ -151,6 +225,12 @@ mod tests {
             hw += if bs.get_bit(i) { 1 } else { 0 };
         }
         assert_eq!(hw, 12, "Error: mismatch between expected and read bits.");
+    }
+
+    #[bench]
+    fn bench_get_bit_dbs(b: &mut Bencher) {
+        let bs = DenseBitSet::from_integer(1234567890);
+        b.iter(|| bs.get_bit(37));
     }
 
     #[test]
@@ -198,6 +278,12 @@ mod tests {
         assert_eq!(e3, 12310);
     }
 
+    #[bench]
+    fn bench_extract_dbs(b: &mut Bencher) {
+        let bs = DenseBitSet::from_integer(1234567890);
+        b.iter(|| bs.extract(5, 14));
+    }
+
     #[test]
     #[should_panic]
     fn catch_extract_zero_width_dbs() {
@@ -226,6 +312,12 @@ mod tests {
         assert_eq!(bs.to_integer(), 0b11101110010100011001)
     }
 
+    #[bench]
+    fn bench_insert_dbs(b: &mut Bencher) {
+        let mut bs = DenseBitSet::from_integer(1234567890);
+        b.iter(|| bs.insert(12, 2, 0b10));
+    }
+
     #[test]
     #[should_panic]
     fn catch_insert_zero_width_dbs() {
@@ -249,6 +341,16 @@ mod tests {
         assert_eq!(bs1, bs2);
     }
 
+    #[bench]
+    fn bench_equality_dbs(b: &mut Bencher) {
+        let bs1 = DenseBitSet::from_integer(1234567890);
+        let mut bs2 = DenseBitSet::from_integer(1234567891);
+
+        bs2.set_bit(0, false); // The two bitsets are now equal
+
+        b.iter(|| bs1 == bs2);
+    }
+
     #[test]
     fn test_equality_trait_dbse() {
         let mut bs1 = DenseBitSetExtended::with_capacity(2000);
@@ -259,11 +361,28 @@ mod tests {
         assert_eq!(bs1, bs2);
     }
 
+    #[bench]
+    fn bench_equality_dbse(b: &mut Bencher) {
+        let mut bs1 = DenseBitSetExtended::with_capacity(2000);
+        let mut bs2 = DenseBitSetExtended::with_capacity(2000);
+
+        bs1.set_bit(1290, true);
+        bs2.set_bit(1290, true); // The two bitsets are now equal
+        b.iter(|| bs1 == bs2);
+    }
+
     #[test]
     fn test_reset_dbs() {
         let mut bs = DenseBitSet::from_integer(1234567890);
         bs.reset();
         assert_eq!(bs.to_integer(), 0);
+    }
+
+    #[bench]
+    fn bench_reset_dbs(b: &mut Bencher) {
+        let mut bs1 = DenseBitSet::from_integer(1234567890);
+
+        b.iter(|| bs1.reset());
     }
 
     #[test]
@@ -274,12 +393,24 @@ mod tests {
         assert_eq!(bs.all(), false);
     }
 
+    #[bench]
+    fn bench_all_dbs(b: &mut Bencher) {
+        let bs = DenseBitSet::from_integer(u64::max_value());
+        b.iter(|| bs.all());
+    }
+
     #[test]
     fn test_any_dbs() {
         let mut bs = DenseBitSet::from_integer(1234567890);
         assert_eq!(bs.any(), true);
         bs.reset();
         assert_eq!(bs.any(), false);
+    }
+
+    #[bench]
+    fn bench_any_dbs(b: &mut Bencher) {
+        let bs = DenseBitSet::from_integer(1234567890);
+        b.iter(|| bs.any());
     }
 
     #[test]
@@ -291,6 +422,13 @@ mod tests {
         assert_eq!(bs.any(), false);
     }
 
+    #[bench]
+    fn bench_any_dbse(b: &mut Bencher) {
+        let mut bs = DenseBitSetExtended::with_capacity(10);
+        bs.set_bit(1234, true);
+        b.iter(|| bs.any());
+    }
+
     #[test]
     fn test_none_dbs() {
         let mut bs = DenseBitSet::from_integer(0);
@@ -299,24 +437,10 @@ mod tests {
         assert_eq!(bs.none(), false);
     }
 
-    #[test]
-    fn test_rotr_dbs() {
-        let mut bs = DenseBitSet::from_integer(0b0001110101);
-        let bs_cp = bs;
-        bs.rotr(40);
-        assert_eq!(bs.to_integer(), 0b1110101000000000000000000000000);
-        bs.rotr(24);
-        assert_eq!(bs, bs_cp);
-    }
-
-    #[test]
-    fn test_rotl() {
-        let mut bs = DenseBitSet::from_integer(0b0001110101);
-        let bs_cp = bs;
-        bs.rotl(10);
-        assert_eq!(bs.to_integer(), 0b11101010000000000);
-        bs.rotl(54);
-        assert_eq!(bs, bs_cp);
+    #[bench]
+    fn bench_none_dbs(b: &mut Bencher) {
+        let bs = DenseBitSet::from_integer(1234567890);
+        b.iter(|| bs.none());
     }
 
     #[test]
@@ -329,12 +453,59 @@ mod tests {
         assert_eq!(bs.none(), false);
     }
 
+    #[bench]
+    fn bench_none_dbse(b: &mut Bencher) {
+        let mut bs = DenseBitSetExtended::with_capacity(10);
+        bs.set_bit(1234, true);
+        b.iter(|| bs.none());
+    }
+
+    #[test]
+    fn test_rotr_dbs() {
+        let mut bs = DenseBitSet::from_integer(0b0001110101);
+        let bs_cp = bs;
+        bs.rotr(40);
+        assert_eq!(bs.to_integer(), 0b1110101000000000000000000000000);
+        bs.rotr(24);
+        assert_eq!(bs, bs_cp);
+    }
+
+    #[bench]
+    fn bench_rotr_dbs(b: &mut Bencher) {
+        let mut bs = DenseBitSet::from_integer(1234567890);
+        b.iter(|| bs.rotr(17));
+    }
+
+    #[test]
+    fn test_rotl() {
+        let mut bs = DenseBitSet::from_integer(0b0001110101);
+        let bs_cp = bs;
+        bs.rotl(10);
+        assert_eq!(bs.to_integer(), 0b11101010000000000);
+        bs.rotl(54);
+        assert_eq!(bs, bs_cp);
+    }
+
+    #[bench]
+    fn bench_rotl_dbs(b: &mut Bencher) {
+        let mut bs = DenseBitSet::from_integer(1234567890);
+        b.iter(|| bs.rotl(17));
+    }
+
     #[test]
     fn test_bitand_dbs() {
         let bs1 = DenseBitSet::from_integer(0b10101);
         let bs2 = DenseBitSet::from_integer(0b11100);
         let bs3 = bs1 & bs2;
         assert_eq!(bs3.to_integer(), 0b10100);
+    }
+
+    #[bench]
+    fn bench_bitand_dbs(b: &mut Bencher) {
+        let bs1 = DenseBitSet::from_integer(0b10101);
+        let bs2 = DenseBitSet::from_integer(0b11100);
+
+        b.iter(|| bs1 & bs2);
     }
 
     #[test]
@@ -364,6 +535,14 @@ mod tests {
         assert_eq!(bs2.to_integer(), 0b1000);
     }
 
+    #[bench]
+    fn bench_bitand_assign_dbs(b: &mut Bencher) {
+        let mut bs1 = DenseBitSet::from_integer(0b10101);
+        let bs2 = DenseBitSet::from_integer(0b11100);
+
+        b.iter(|| bs1 &= bs2);
+    }
+
     #[test]
     fn test_bitand_assign_dbse() {
         let mut bs1 = DenseBitSetExtended::with_capacity(10);
@@ -389,6 +568,14 @@ mod tests {
         let bs2 = DenseBitSet::from_integer(0b11100);
         let bs3 = bs1 | bs2;
         assert_eq!(bs3.to_integer(), 0b11101);
+    }
+
+    #[bench]
+    fn bench_bitor_dbs(b: &mut Bencher) {
+        let bs1 = DenseBitSet::from_integer(0b10101);
+        let bs2 = DenseBitSet::from_integer(0b11100);
+
+        b.iter(|| bs1 | bs2);
     }
 
     #[test]
@@ -417,6 +604,14 @@ mod tests {
         let mut bs2 = DenseBitSet::from_integer(0b1001);
         bs2 |= bs1;
         assert_eq!(bs2.to_integer(), 0b11001);
+    }
+
+    #[bench]
+    fn bench_bitor_assign_dbs(b: &mut Bencher) {
+        let mut bs1 = DenseBitSet::from_integer(0b10101);
+        let bs2 = DenseBitSet::from_integer(0b11100);
+
+        b.iter(|| bs1 |= bs2);
     }
 
     #[test]
@@ -474,6 +669,22 @@ mod tests {
         assert_eq!(bs2.to_integer(), 0b10001);
     }
 
+    #[bench]
+    fn bench_bitxor_dbs(b: &mut Bencher) {
+        let bs1 = DenseBitSet::from_integer(0b10101);
+        let bs2 = DenseBitSet::from_integer(0b11100);
+
+        b.iter(|| bs1 ^ bs2);
+    }
+
+    #[bench]
+    fn bench_bitxor_assign_dbs(b: &mut Bencher) {
+        let mut bs1 = DenseBitSet::from_integer(0b10101);
+        let bs2 = DenseBitSet::from_integer(0b11100);
+
+        b.iter(|| bs1 ^= bs2);
+    }
+
     #[test]
     fn test_bitxor_assign_dbse() {
         let mut bs1 = DenseBitSetExtended::with_capacity(10);
@@ -501,6 +712,13 @@ mod tests {
             bs1.to_integer(),
             0b1111111111111111111111111111111111111111111111000101011100010100
         );
+    }
+
+    #[bench]
+    fn bench_not_dbs(b: &mut Bencher) {
+        let bs1 = DenseBitSet::from_integer(0b111010100011101011);
+
+        b.iter(|| !bs1);
     }
 
     #[test]
@@ -639,8 +857,7 @@ mod tests {
             String::from("f001eddadf411eddec0de5ca1ab1ec0feefeeb1e01dc0b01"),
             16,
         );
-        let bs2 =
-            DenseBitSetExtended::from_string(String::from("0J2aG5BaMRS443FEBRGS5DTMV2A"), 32) ;
+        let bs2 = DenseBitSetExtended::from_string(String::from("0J2aG5BaMRS443FEBRGS5DTMV2A"), 32);
         bs = bs.rotr(17) | (bs2 << 43);
         bs.set_bit(123, true);
         println!("{}", bs.subset(3, 64).to_string());
