@@ -1,5 +1,5 @@
 [package]
-name = "rsdbs"
+name = "rust-dense-bitset"
 version = "0.1.0"
 edition = "2018"
 description = "Efficient and compact bitsets for Rust."

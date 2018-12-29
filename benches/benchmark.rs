@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate criterion;
 
-extern crate rsdbs;
+extern crate rust_dense_bitset;
 
 mod benchmarks {
     use criterion::Criterion;
-    use rsdbs::{BitSet, DenseBitSet, DenseBitSetExtended};
+    use rust_dense_bitset::{BitSet, DenseBitSet, DenseBitSetExtended};
 
     pub fn bench_reverse_dbs(c: &mut Criterion) {
         let bs = DenseBitSet::from_integer(666123);
