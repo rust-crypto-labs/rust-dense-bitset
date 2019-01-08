@@ -8,11 +8,11 @@ The library is safe rust only, fully documented, and uses the most efficient alg
 ## Implementations
 
 * `DenseBitSet` is a compact 64-bit bitset supporting in particular
-** Individual bit setting (`set_bit`) and getting (`get_bit`)
-** Bitwise operations `&, ^, |, !, <<, >>` and rotations
-** [Hamming weight](https://en.wikipedia.org/wiki/Hamming_weight), [bit reversal](https://en.wikipedia.org/wiki/Bit-reversal_permutation), [find first set](https://en.wikipedia.org/wiki/Find_first_set)
-** Conversion from and to integers and strings 
-** Insertion and extraction of bitsets
+    * Individual bit setting (`set_bit`) and getting (`get_bit`)
+    * Bitwise operations `&, ^, |, !, <<, >>` and rotations
+    * [Hamming weight](https://en.wikipedia.org/wiki/Hamming_weight), [bit reversal](https://en.wikipedia.org/wiki/Bit-reversal_permutation), [find first set](https://en.wikipedia.org/wiki/Find_first_set)
+    * Conversion from and to integers and strings
+    * Insertion and extraction of bitsets
 * `DenseBitSetExtended` implements the same functionality, extending the bitset as necessary to accomodate as many bits as needed. Memory can be preallocated and new allocation is only performed if necessary.
 
 ### Usage 
