@@ -247,9 +247,9 @@ impl DenseBitSetExtended {
         let offset = position % 64;
 
         // First, resize the bitset if necessary
-        if 1 + ((position + length) >> 6) > self.state.len() {
+        if 1 + ((position + length - 1) >> 6) > self.state.len() {
             // We need to extend the bitset to accomodate this insertion
-            let num_seg = 1 + ((position + length) >> 6) - self.state.len();
+            let num_seg = 1 + ((position + length - 1 ) >> 6) - self.state.len();
 
             for _ in 0..num_seg {
                 self.state.push(0);
@@ -261,7 +261,7 @@ impl DenseBitSetExtended {
         if offset == 0 && length == 64 {
             // Easiest case
             self.state[idx] = value;
-        } else if offset + length < 64 {
+        } else if offset + length - 1 < 64 {
             // Easy case: inserting fewer than 64 bits in an u64
             let mut u = u64::max_value();
             u ^= ((1 << length) - 1) << offset;
@@ -339,7 +339,7 @@ impl DenseBitSetExtended {
         let extra = self.subset(0, shift_amount);
         let mut shifted = self >> shift_amount;
 
-        shifted.insert(&extra, size_before_shift, shift_amount);
+        shifted.insert(&extra, size_before_shift-shift_amount, shift_amount);
 
         shifted
     }
@@ -509,6 +509,7 @@ impl fmt::Debug for DenseBitSetExtended {
                 };
             }
         }
+        bss = format!("{} {}", bss, self.state.len());
         write!(f, "0b{}", bss)
     }
 }
