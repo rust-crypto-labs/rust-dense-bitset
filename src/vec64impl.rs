@@ -518,7 +518,6 @@ impl fmt::Debug for DenseBitSetExtended {
                 };
             }
         }
-        bss = format!("{} {}", bss, self.state.len());
         write!(f, "0b{}", bss)
     }
 }
