@@ -372,7 +372,7 @@ impl BitSet for DenseBitSet {
 
 impl fmt::Debug for DenseBitSet {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:64b}", self.to_integer())
+        write!(f, "{:064b}", self.to_integer())
     }
 }
 
