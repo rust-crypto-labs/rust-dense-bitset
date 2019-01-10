@@ -1,9 +1,21 @@
 [package]
 name = "rust-dense-bitset"
 version = "0.1.0"
-edition = "2018"
-description = "Efficient and compact bitsets for Rust."
+authors = ["Stanislas Plessia <stplessia@gmail.com>", "Rémi Géraud-Stewart <remi.geraud@ens.fr>"]
 license = "MIT"
+edition = "2018"
+keywords = ["bit", "bitmask", "bitflags", "flags", "bitset"]
+
+readme = "README.md"
+repository = "https://github.com/ovheurdrive/rust-dense-bitset"
+homepage = "https://github.com/ovheurdrive/rust-dense-bitset"
+documentation = "https://docs.rs/rust-dense-bitset"
+
+categories = ["compression", "data-structures", "encoding"]
+description = "Efficient and compact bitsets for Rust."
+
+[badges]
+travis-ci = { repository = "ovheurdrive/rust-dense-bitset" }
 
 [dev-dependencies]
 criterion = "0.2"
