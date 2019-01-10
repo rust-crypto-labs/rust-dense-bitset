@@ -144,6 +144,7 @@ impl DenseBitSetExtended {
             // The extraction is beyond any bit set to 1
             return 0;
         }
+
         let idx = position >> 6;
         let offset = position % 64;
         let actual_length = if position + length > self.size {
@@ -154,10 +155,10 @@ impl DenseBitSetExtended {
 
         if actual_length + offset < 64 {
             // Remain within the boundary of an element
-            (self.state[idx] >> offset) & ((1 << actual_length) - 1)
+            (self.get(idx) >> offset) & ((1 << actual_length) - 1)
         } else if actual_length + offset == 64 {
             // Special case to avoid masking overflow
-            self.state[idx] >> offset
+           self.get(idx) >> offset
         } else {
             // Possibly split between neighbour elements
 
@@ -195,7 +196,7 @@ impl DenseBitSetExtended {
             };
         }
 
-        let segments = 1 + (length >> 6);
+        let segments = 1 + (length - 1 >> 6);
         let mut state = vec![];
 
         for l in 0..segments {
@@ -318,8 +319,8 @@ impl DenseBitSetExtended {
             return self;
         }
 
-        let mut shifted = self << shift;
-        let extra = shifted.subset(size_before_shift, shift);
+        let mut shifted = (self.clone() << shift).subset(0, size_before_shift);
+        let extra = self.subset(size_before_shift-shift_amount,shift_amount);
 
         shifted.insert(&extra, 0, shift_amount);
 
@@ -403,6 +404,14 @@ impl DenseBitSetExtended {
             }
         }
         self.size
+    }
+
+
+    fn get(&self, index: usize) -> u64 {
+        match index {
+            u if u < self.state.len() => self.state[u],
+            _ => 0
+        }
     }
 }
 
