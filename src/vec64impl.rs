@@ -144,6 +144,7 @@ impl DenseBitSetExtended {
             // The extraction is beyond any bit set to 1
             return 0;
         }
+
         let idx = position >> 6;
         let offset = position % 64;
         let actual_length = if position + length > self.size {
@@ -154,10 +155,10 @@ impl DenseBitSetExtended {
 
         if actual_length + offset < 64 {
             // Remain within the boundary of an element
-            (self.state[idx] >> offset) & ((1 << actual_length) - 1)
+            (self.get(idx) >> offset) & ((1 << actual_length) - 1)
         } else if actual_length + offset == 64 {
             // Special case to avoid masking overflow
-            self.state[idx] >> offset
+           self.get(idx) >> offset
         } else {
             // Possibly split between neighbour elements
 
@@ -195,7 +196,7 @@ impl DenseBitSetExtended {
             };
         }
 
-        let segments = 1 + (length >> 6);
+        let segments = 1 + (length - 1 >> 6);
         let mut state = vec![];
 
         for l in 0..segments {
@@ -247,9 +248,9 @@ impl DenseBitSetExtended {
         let offset = position % 64;
 
         // First, resize the bitset if necessary
-        if 1 + ((position + length) >> 6) > self.state.len() {
+        if 1 + ((position + length - 1) >> 6) > self.state.len() {
             // We need to extend the bitset to accomodate this insertion
-            let num_seg = 1 + ((position + length) >> 6) - self.state.len();
+            let num_seg = 1 + ((position + length - 1 ) >> 6) - self.state.len();
 
             for _ in 0..num_seg {
                 self.state.push(0);
@@ -261,7 +262,7 @@ impl DenseBitSetExtended {
         if offset == 0 && length == 64 {
             // Easiest case
             self.state[idx] = value;
-        } else if offset + length < 64 {
+        } else if offset + length - 1 < 64 {
             // Easy case: inserting fewer than 64 bits in an u64
             let mut u = u64::max_value();
             u ^= ((1 << length) - 1) << offset;
@@ -318,8 +319,8 @@ impl DenseBitSetExtended {
             return self;
         }
 
-        let mut shifted = self << shift;
-        let extra = shifted.subset(size_before_shift, shift);
+        let mut shifted = (self.clone() << shift).subset(0, size_before_shift);
+        let extra = self.subset(size_before_shift-shift_amount,shift_amount);
 
         shifted.insert(&extra, 0, shift_amount);
 
@@ -339,7 +340,7 @@ impl DenseBitSetExtended {
         let extra = self.subset(0, shift_amount);
         let mut shifted = self >> shift_amount;
 
-        shifted.insert(&extra, size_before_shift, shift_amount);
+        shifted.insert(&extra, size_before_shift-shift_amount, shift_amount);
 
         shifted
     }
@@ -403,6 +404,14 @@ impl DenseBitSetExtended {
             }
         }
         self.size
+    }
+
+
+    fn get(&self, index: usize) -> u64 {
+        match index {
+            u if u < self.state.len() => self.state[u],
+            _ => 0
+        }
     }
 }
 
