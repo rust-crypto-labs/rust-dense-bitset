@@ -199,6 +199,26 @@ mod tests {
         assert_eq!(bs, bs_cp);
     }
 
+     #[test]
+    fn test_rotr_dbse() {
+        let bs = DenseBitSet::from_integer(0b11110001);
+        let mut bs2 = DenseBitSetExtended::from_dense_bitset(bs);
+        let bs_cp = bs2.clone();
+        bs2 = bs2.rotr(40);
+        bs2 = bs2.rotr(24);
+        assert_eq!(bs2, bs_cp);
+    }
+
+    #[test]
+    fn test_rotl_dbse() {
+        let bs = DenseBitSet::from_integer(0b11110001);
+        let mut bs2 = DenseBitSetExtended::from_dense_bitset(bs);
+        let bs_cp = bs2.clone();
+        bs2 = bs2.rotl(40);
+        bs2 = bs2.rotl(24);
+        assert_eq!(bs2, bs_cp);
+    }
+
     #[test]
     fn test_reverse_dbs() {
         let bs = DenseBitSet::from_integer(666123);
@@ -419,6 +439,17 @@ mod tests {
         assert_eq!(bs1.get_weight(), 0);
         assert_eq!(bs2.get_weight(), 12);
         assert_eq!(bs3.get_weight(), 64);
+    }
+
+    #[test]
+    fn test_hamming_weight_dbse() {
+        let bs1 = DenseBitSet::from_integer(1234567890);
+        let mut bs2 = DenseBitSetExtended::from_dense_bitset(bs1);
+
+        bs2.set_bit(78, true);
+        bs2.set_bit(289, true);
+
+        assert_eq!(bs2.get_weight(),14);
     }
 
     #[test]
