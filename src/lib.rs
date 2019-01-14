@@ -10,12 +10,12 @@ pub use crate::vec64impl::DenseBitSetExtended;
 mod tests {
     use super::*;
 
-    //! Tests for data initialization methods
-    //! dbs : from_integer, from_string
-    //! dbse : from_dense_bitset, from_string
-    //!
-    //! Test of functionality (The method is doing what is expected)
-    //! Test of panic cases
+    // Tests for data initialization methods
+    // dbs : from_integer, from_string
+    // dbse : from_dense_bitset, from_string
+    //
+    // Test of functionality (The method is doing what is expected)
+    // Test of panic cases
 
     #[test]
     fn test_from_integer_dbs() {
@@ -56,8 +56,8 @@ mod tests {
         assert_eq!(bs2.to_string(), val);
     }
 
-    //! Panics if the string contains a char that
-    //! can't be converted to an integer value in the specified base
+    // Panics if the string contains a char that
+    // can't be converted to an integer value in the specified base
 
     #[test]
     #[should_panic]
@@ -71,7 +71,7 @@ mod tests {
         let _bs = DenseBitSetExtended::from_string(String::from("Hello World!"), 12);
     }
 
-    //! Panics if the radix is > 32
+    // Panics if the radix is > 32
 
     #[test]
     #[should_panic]
@@ -85,7 +85,7 @@ mod tests {
         let _bs = DenseBitSetExtended::from_string(String::from("1234"), 33);
     }
 
-    //! Panics if radix is < 2
+    // Panics if radix is < 2
 
     #[test]
     #[should_panic]
@@ -99,9 +99,9 @@ mod tests {
         let _bs = DenseBitSetExtended::from_string(String::from("0000"), 1);
     }
 
-    //! Tests for information data
-    //! generic : any, all, none, first_set
-    //! dbse : get_size
+    // Tests for information data
+    // generic : any, all, none, first_set
+    // dbse : get_size
 
     #[test]
     fn test_all_dbs() {
@@ -174,10 +174,10 @@ mod tests {
         assert_eq!(231, dbs.first_set());
     }
 
-    //! Tests for set manipulations
-    //! generic : reverse, rotr, rotl
-    //! dbs: insert, extract
-    //! dbse: insert(set), subset, insert_u64, extract_u64
+    // Tests for set manipulations
+    // generic : reverse, rotr, rotl
+    // dbs: insert, extract
+    // dbse: insert(set), subset, insert_u64, extract_u64
 
     #[test]
     fn test_rotr_dbs() {
@@ -234,7 +234,7 @@ mod tests {
         assert_eq!(srev, rs.to_string());
     }
 
-    //! Tests for extract and insert on dbs
+    // Tests for extract and insert on dbs
 
     #[test]
     fn no_crash_on_insertion_dbs() {
@@ -349,7 +349,7 @@ mod tests {
         bs.insert(12, 55, 79885); // Should panic: 12+55 exceeds the 64 bit boundary
     }
 
-    //! Tests for insert and extract functions for dbse
+    // Tests for insert and extract functions for dbse
 
     #[test]
     fn test_extract_u64_dbse() {
@@ -413,8 +413,8 @@ mod tests {
         assert_eq!(bs.to_string(), "00000000000000000000000000000000000000000000000000000001011011101111000000000000000000000000000000000000000000000000000000000000");
     }
 
-    //! Tests for `BitSet` trait methods implementations
-    //! generic : set_bit, get_bit, get_weight, reset, to_string
+    // Tests for `BitSet` trait methods implementations
+    // generic : set_bit, get_bit, get_weight, reset, to_string
 
     #[test]
     fn test_reset_dbs() {
@@ -473,7 +473,7 @@ mod tests {
         assert_eq!(bs1.to_string(), "00000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
     }
 
-    //! Tests for other Traits implementations
+    // Tests for other Traits implementations
 
     #[test]
     fn test_equality_trait_dbs() {
@@ -743,7 +743,7 @@ mod tests {
         assert!(bs1.get_bit(54));
     }
 
-    //! Test for README.md source code
+    // Test for README.md source code
 
     #[test]
     fn test_readme() {
