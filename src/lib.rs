@@ -113,7 +113,8 @@ mod tests {
 
     #[test]
     fn test_all_dbse() {
-        let mut bs = DenseBitSetExtended::from_string(String::from("fffffffffffffffffffffffffffff"), 16);
+        let mut bs =
+            DenseBitSetExtended::from_string(String::from("fffffffffffffffffffffffffffff"), 16);
         assert!(bs.all());
         bs.set_bit(28, false);
         assert!(!bs.all());
@@ -199,7 +200,7 @@ mod tests {
         assert_eq!(bs, bs_cp);
     }
 
-     #[test]
+    #[test]
     fn test_rotr_dbse() {
         let bs = DenseBitSet::from_integer(0b11110001);
         let mut bs2 = DenseBitSetExtended::from_dense_bitset(bs);
@@ -427,7 +428,10 @@ mod tests {
     fn test_reset_dbse() {
         let mut bs = DenseBitSetExtended::from_string(String::from("0101"), 2);
         bs.reset();
-        assert_eq!(bs.to_string(), "0000000000000000000000000000000000000000000000000000000000000000");
+        assert_eq!(
+            bs.to_string(),
+            "0000000000000000000000000000000000000000000000000000000000000000"
+        );
     }
 
     #[test]
@@ -449,7 +453,7 @@ mod tests {
         bs2.set_bit(78, true);
         bs2.set_bit(289, true);
 
-        assert_eq!(bs2.get_weight(),14);
+        assert_eq!(bs2.get_weight(), 14);
     }
 
     #[test]
@@ -672,7 +676,10 @@ mod tests {
     fn test_not_dbse() {
         let mut bs1 = DenseBitSetExtended::from_string(String::from("ff00ff00ff00ff00"), 16);
         bs1 = !bs1;
-        assert_eq!(bs1.to_string(), "0000000011111111000000001111111100000000111111110000000011111111")
+        assert_eq!(
+            bs1.to_string(),
+            "0000000011111111000000001111111100000000111111110000000011111111"
+        )
     }
 
     #[test]
