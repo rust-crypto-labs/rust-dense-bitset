@@ -10,52 +10,28 @@ pub use crate::vec64impl::DenseBitSetExtended;
 mod tests {
     use super::*;
 
+    // Tests for data initialization methods
+    // dbs : from_integer, from_string
+    // dbse : from_dense_bitset, from_string
+    //
+    // Test of functionality (The method is doing what is expected)
+    // Test of panic cases
+
     #[test]
-    fn test_reverse_dbs() {
-        let bs = DenseBitSet::from_integer(666123);
-        let srev = bs.to_string().chars().rev().collect::<String>();
-        assert_eq!(srev, bs.reverse().to_string());
+    fn test_from_integer_dbs() {
+        let mut bs1 = DenseBitSet::from_integer(2047);
+        bs1.set_bit(11, true);
+        assert_eq!(bs1.to_integer(), 4095);
     }
 
     #[test]
-    fn test_first_set_dbs() {
-        let dbs = DenseBitSet::from_integer(256);
-        assert_eq!(8, dbs.first_set());
-    }
-
-    #[test]
-    fn test_first_set_dbse() {
-        let dbs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(256)) << 223;
-        assert_eq!(231, dbs.first_set());
-    }
-
-    #[test]
-    fn test_reverse_dbse() {
-        let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(666123)) >> 63;
-        let rs = bs.reverse();
-        let srev = bs.to_string().chars().rev().collect::<String>();
-        assert_eq!(srev, rs.to_string());
-    }
-
-    #[test]
-    fn test_to_string_dbs() {
-        let bs1 = DenseBitSet::from_integer(7891234);
-        let bs2 = DenseBitSet::from_integer(65536);
-        assert_eq!(
-            bs1.to_string(),
-            "0000000000000000000000000000000000000000011110000110100100100010"
-        );
-        assert_eq!(
-            bs2.to_string(),
-            "0000000000000000000000000000000000000000000000010000000000000000"
-        )
-    }
-
-    #[test]
-    fn test_to_string_dbse() {
-        let mut bs1 = DenseBitSetExtended::with_capacity(100);
-        bs1.set_bit(99, true);
-        assert_eq!(bs1.to_string(), "00000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+    fn test_from_dense_bitset_dbse() {
+        let bs1 = DenseBitSet::from_integer(2048);
+        let mut bs2 = DenseBitSetExtended::from_dense_bitset(bs1);
+        bs2.set_bit(70, true);
+        assert_eq!(bs2.get_weight(), 2);
+        assert_eq!(bs2.get_size(), 71);
+        assert!(bs2.get_bit(11));
     }
 
     #[test]
@@ -80,6 +56,9 @@ mod tests {
         assert_eq!(bs2.to_string(), val);
     }
 
+    // Panics if the string contains a char that
+    // can't be converted to an integer value in the specified base
+
     #[test]
     #[should_panic]
     fn catch_invalid_string_dbs_incorrect_char() {
@@ -91,6 +70,8 @@ mod tests {
     fn catch_invalid_string_dbse_incorrect_char() {
         let _bs = DenseBitSetExtended::from_string(String::from("Hello World!"), 12);
     }
+
+    // Panics if the radix is > 32
 
     #[test]
     #[should_panic]
@@ -104,6 +85,8 @@ mod tests {
         let _bs = DenseBitSetExtended::from_string(String::from("1234"), 33);
     }
 
+    // Panics if radix is < 2
+
     #[test]
     #[should_panic]
     fn catch_invalid_string_dbs_incorrect_radix2() {
@@ -115,6 +98,144 @@ mod tests {
     fn catch_invalid_string_dbse_incorrect_radix2() {
         let _bs = DenseBitSetExtended::from_string(String::from("0000"), 1);
     }
+
+    // Tests for information data
+    // generic : any, all, none, first_set
+    // dbse : get_size
+
+    #[test]
+    fn test_all_dbs() {
+        let mut bs = DenseBitSet::from_integer(u64::max_value());
+        assert_eq!(bs.all(), true);
+        bs.set_bit(3, false);
+        assert_eq!(bs.all(), false);
+    }
+
+    #[test]
+    fn test_all_dbse() {
+        let mut bs =
+            DenseBitSetExtended::from_string(String::from("fffffffffffffffffffffffffffff"), 16);
+        assert!(bs.all());
+        bs.set_bit(28, false);
+        assert!(!bs.all());
+    }
+
+    #[test]
+    fn test_any_dbs() {
+        let mut bs = DenseBitSet::from_integer(1234567890);
+        assert_eq!(bs.any(), true);
+        bs.reset();
+        assert_eq!(bs.any(), false);
+    }
+
+    #[test]
+    fn test_any_dbse() {
+        let mut bs = DenseBitSetExtended::with_capacity(10);
+        bs.set_bit(1234, true);
+        assert_eq!(bs.any(), true);
+        bs.reset();
+        assert_eq!(bs.any(), false);
+    }
+
+    #[test]
+    fn test_none_dbs() {
+        let mut bs = DenseBitSet::from_integer(0);
+        assert_eq!(bs.none(), true);
+        bs.set_bit(3, true);
+        assert_eq!(bs.none(), false);
+    }
+
+    #[test]
+    fn test_none_dbse() {
+        let mut bs = DenseBitSetExtended::with_capacity(10);
+        bs.set_bit(1234, true);
+        bs.set_bit(1234, false);
+        assert_eq!(bs.none(), true);
+        bs.set_bit(1235, true);
+        assert_eq!(bs.none(), false);
+    }
+
+    #[test]
+    fn test_get_size_dbse() {
+        let mut bs = DenseBitSetExtended::from_string(String::from("deadbeef"), 16);
+        assert_eq!(bs.get_size(), 32);
+        bs.set_bit(8975, false);
+        assert_eq!(bs.get_size(), 8976);
+    }
+
+    #[test]
+    fn test_first_set_dbs() {
+        let dbs = DenseBitSet::from_integer(256);
+        assert_eq!(8, dbs.first_set());
+    }
+
+    #[test]
+    fn test_first_set_dbse() {
+        let dbs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(256)) << 223;
+        assert_eq!(231, dbs.first_set());
+    }
+
+    // Tests for set manipulations
+    // generic : reverse, rotr, rotl
+    // dbs: insert, extract
+    // dbse: insert(set), subset, insert_u64, extract_u64
+
+    #[test]
+    fn test_rotr_dbs() {
+        let mut bs = DenseBitSet::from_integer(0b0001110101);
+        let bs_cp = bs;
+        bs.rotr(40);
+        assert_eq!(bs.to_integer(), 0b1110101000000000000000000000000);
+        bs.rotr(24);
+        assert_eq!(bs, bs_cp);
+    }
+
+    #[test]
+    fn test_rotl_dbs() {
+        let mut bs = DenseBitSet::from_integer(0b0001110101);
+        let bs_cp = bs;
+        bs.rotl(10);
+        assert_eq!(bs.to_integer(), 0b11101010000000000);
+        bs.rotl(54);
+        assert_eq!(bs, bs_cp);
+    }
+
+    #[test]
+    fn test_rotr_dbse() {
+        let bs = DenseBitSet::from_integer(0b11110001);
+        let mut bs2 = DenseBitSetExtended::from_dense_bitset(bs);
+        let bs_cp = bs2.clone();
+        bs2 = bs2.rotr(40);
+        bs2 = bs2.rotr(24);
+        assert_eq!(bs2, bs_cp);
+    }
+
+    #[test]
+    fn test_rotl_dbse() {
+        let bs = DenseBitSet::from_integer(0b11110001);
+        let mut bs2 = DenseBitSetExtended::from_dense_bitset(bs);
+        let bs_cp = bs2.clone();
+        bs2 = bs2.rotl(40);
+        bs2 = bs2.rotl(24);
+        assert_eq!(bs2, bs_cp);
+    }
+
+    #[test]
+    fn test_reverse_dbs() {
+        let bs = DenseBitSet::from_integer(666123);
+        let srev = bs.to_string().chars().rev().collect::<String>();
+        assert_eq!(srev, bs.reverse().to_string());
+    }
+
+    #[test]
+    fn test_reverse_dbse() {
+        let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(666123)) >> 63;
+        let rs = bs.reverse();
+        let srev = bs.to_string().chars().rev().collect::<String>();
+        assert_eq!(srev, rs.to_string());
+    }
+
+    // Tests for extract and insert on dbs
 
     #[test]
     fn no_crash_on_insertion_dbs() {
@@ -130,17 +251,6 @@ mod tests {
         for i in 0..1024 {
             bs.set_bit(i, true);
         }
-    }
-
-    #[test]
-    fn test_hamming_weight_dbs() {
-        let bs1 = DenseBitSet::from_integer(0);
-        let bs2 = DenseBitSet::from_integer(1234567890);
-        let bs3 = DenseBitSet::from_integer(u64::max_value());
-
-        assert_eq!(bs1.get_weight(), 0);
-        assert_eq!(bs2.get_weight(), 12);
-        assert_eq!(bs3.get_weight(), 64);
     }
 
     #[test]
@@ -240,6 +350,135 @@ mod tests {
         bs.insert(12, 55, 79885); // Should panic: 12+55 exceeds the 64 bit boundary
     }
 
+    // Tests for insert and extract functions for dbse
+
+    #[test]
+    fn test_extract_u64_dbse() {
+        let offset = 140;
+        let bs =
+            DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(1234567890)) << offset;
+        let e1 = bs.extract_u64(1 + offset, 63);
+        let e2 = bs.extract_u64(0 + offset, 8);
+        let e3 = bs.extract_u64(5 + offset, 14);
+
+        assert_eq!(e1, 617283945);
+        assert_eq!(e2, 210);
+        assert_eq!(e3, 12310);
+    }
+
+    #[test]
+    #[should_panic]
+    fn catch_extract_u64_zero_width_dbse() {
+        let bs = DenseBitSetExtended::new();
+        let _r = bs.extract_u64(12, 0); // Should panic: 0 is passed as 2nd argument
+    }
+
+    #[test]
+    #[should_panic]
+    fn catch_extract_u64_overflow_dbse() {
+        let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(1234567890));
+        let _r = bs.extract_u64(12, 75); // Should panic: 12+75 exceeds the 64 bit size limit
+    }
+
+    #[test]
+    fn test_subset_dbse() {
+        let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(1234567890));
+        let e1 = bs.subset(0, 12);
+        let e2 = bs.subset(4, 128).subset(0, 4);
+
+        assert_eq!(
+            e1.to_string(),
+            "0000000000000000000000000000000000000000000000000000001011010010"
+        );
+        assert_eq!(
+            e2.to_string(),
+            "0000000000000000000000000000000000000000000000000000000000001101"
+        );
+    }
+
+    #[test]
+    fn test_insert_u64_dbse() {
+        let mut bs = DenseBitSetExtended::new();
+        bs.insert_u64(0b1011011101111, 50, 64);
+
+        assert_eq!(bs.to_string(), "00000000000000000000000000000000000000000000000000000000000000000101101110111100000000000000000000000000000000000000000000000000");
+    }
+
+    #[test]
+    fn test_insert_dbse() {
+        let mut bs = DenseBitSetExtended::new();
+        let bs2 =
+            DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(0b1011011101111));
+        bs.insert(&bs2, 60, 13);
+
+        assert_eq!(bs.to_string(), "00000000000000000000000000000000000000000000000000000001011011101111000000000000000000000000000000000000000000000000000000000000");
+    }
+
+    // Tests for `BitSet` trait methods implementations
+    // generic : set_bit, get_bit, get_weight, reset, to_string
+
+    #[test]
+    fn test_reset_dbs() {
+        let mut bs = DenseBitSet::from_integer(1234567890);
+        bs.reset();
+        assert_eq!(bs.to_integer(), 0);
+    }
+
+    #[test]
+    fn test_reset_dbse() {
+        let mut bs = DenseBitSetExtended::from_string(String::from("0101"), 2);
+        bs.reset();
+        assert_eq!(
+            bs.to_string(),
+            "0000000000000000000000000000000000000000000000000000000000000000"
+        );
+    }
+
+    #[test]
+    fn test_hamming_weight_dbs() {
+        let bs1 = DenseBitSet::from_integer(0);
+        let bs2 = DenseBitSet::from_integer(1234567890);
+        let bs3 = DenseBitSet::from_integer(u64::max_value());
+
+        assert_eq!(bs1.get_weight(), 0);
+        assert_eq!(bs2.get_weight(), 12);
+        assert_eq!(bs3.get_weight(), 64);
+    }
+
+    #[test]
+    fn test_hamming_weight_dbse() {
+        let bs1 = DenseBitSet::from_integer(1234567890);
+        let mut bs2 = DenseBitSetExtended::from_dense_bitset(bs1);
+
+        bs2.set_bit(78, true);
+        bs2.set_bit(289, true);
+
+        assert_eq!(bs2.get_weight(), 14);
+    }
+
+    #[test]
+    fn test_to_string_dbs() {
+        let bs1 = DenseBitSet::from_integer(7891234);
+        let bs2 = DenseBitSet::from_integer(65536);
+        assert_eq!(
+            bs1.to_string(),
+            "0000000000000000000000000000000000000000011110000110100100100010"
+        );
+        assert_eq!(
+            bs2.to_string(),
+            "0000000000000000000000000000000000000000000000010000000000000000"
+        )
+    }
+
+    #[test]
+    fn test_to_string_dbse() {
+        let mut bs1 = DenseBitSetExtended::with_capacity(100);
+        bs1.set_bit(99, true);
+        assert_eq!(bs1.to_string(), "00000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+    }
+
+    // Tests for other Traits implementations
+
     #[test]
     fn test_equality_trait_dbs() {
         let bs1 = DenseBitSet::from_integer(1234567890);
@@ -257,76 +496,6 @@ mod tests {
         bs1.set_bit(1290, true);
         bs2.set_bit(1290, true); // The two bitsets are now equal
         assert_eq!(bs1, bs2);
-    }
-
-    #[test]
-    fn test_reset_dbs() {
-        let mut bs = DenseBitSet::from_integer(1234567890);
-        bs.reset();
-        assert_eq!(bs.to_integer(), 0);
-    }
-
-    #[test]
-    fn test_all_dbs() {
-        let mut bs = DenseBitSet::from_integer(u64::max_value());
-        assert_eq!(bs.all(), true);
-        bs.set_bit(3, false);
-        assert_eq!(bs.all(), false);
-    }
-
-    #[test]
-    fn test_any_dbs() {
-        let mut bs = DenseBitSet::from_integer(1234567890);
-        assert_eq!(bs.any(), true);
-        bs.reset();
-        assert_eq!(bs.any(), false);
-    }
-
-    #[test]
-    fn test_any_dbse() {
-        let mut bs = DenseBitSetExtended::with_capacity(10);
-        bs.set_bit(1234, true);
-        assert_eq!(bs.any(), true);
-        bs.reset();
-        assert_eq!(bs.any(), false);
-    }
-
-    #[test]
-    fn test_none_dbs() {
-        let mut bs = DenseBitSet::from_integer(0);
-        assert_eq!(bs.none(), true);
-        bs.set_bit(3, true);
-        assert_eq!(bs.none(), false);
-    }
-
-    #[test]
-    fn test_none_dbse() {
-        let mut bs = DenseBitSetExtended::with_capacity(10);
-        bs.set_bit(1234, true);
-        bs.set_bit(1234, false);
-        assert_eq!(bs.none(), true);
-        bs.set_bit(1235, true);
-        assert_eq!(bs.none(), false);
-    }
-
-    #[test]
-    fn test_rotr_dbs() {
-        let mut bs = DenseBitSet::from_integer(0b0001110101);
-        let bs_cp = bs;
-        bs.rotr(40);
-        assert_eq!(bs.to_integer(), 0b1110101000000000000000000000000);
-        bs.rotr(24);
-        assert_eq!(bs, bs_cp);
-    }
-
-    #[test]
-    fn test_rotl() {
-        let mut bs = DenseBitSet::from_integer(0b0001110101);
-        let bs_cp = bs;
-        bs.rotl(10);
-        assert_eq!(bs.to_integer(), 0b11101010000000000);
-        bs.rotl(54);
-        assert_eq!(bs, bs_cp);
     }
 
     #[test]
@@ -504,6 +673,16 @@ mod tests {
     }
 
     #[test]
+    fn test_not_dbse() {
+        let mut bs1 = DenseBitSetExtended::from_string(String::from("ff00ff00ff00ff00"), 16);
+        bs1 = !bs1;
+        assert_eq!(
+            bs1.to_string(),
+            "0000000011111111000000001111111100000000111111110000000011111111"
+        )
+    }
+
+    #[test]
     fn test_shl_dbs() {
         let bs1 = DenseBitSet::from_integer(0b10101);
         let bs2 = bs1 << 6;
@@ -571,67 +750,7 @@ mod tests {
         assert!(bs1.get_bit(54));
     }
 
-    #[test]
-    fn test_extract_u64_dbse() {
-        let offset = 140;
-        let bs =
-            DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(1234567890)) << offset;
-        let e1 = bs.extract_u64(1 + offset, 63);
-        let e2 = bs.extract_u64(0 + offset, 8);
-        let e3 = bs.extract_u64(5 + offset, 14);
-
-        assert_eq!(e1, 617283945);
-        assert_eq!(e2, 210);
-        assert_eq!(e3, 12310);
-    }
-
-    #[test]
-    #[should_panic]
-    fn catch_extract_u64_zero_width_dbse() {
-        let bs = DenseBitSetExtended::new();
-        let _r = bs.extract_u64(12, 0); // Should panic: 0 is passed as 2nd argument
-    }
-
-    #[test]
-    #[should_panic]
-    fn catch_extract_u64_overflow_dbse() {
-        let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(1234567890));
-        let _r = bs.extract_u64(12, 75); // Should panic: 12+75 exceeds the 64 bit size limit
-    }
-
-    #[test]
-    fn test_subset_dbse() {
-        let bs = DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(1234567890));
-        let e1 = bs.subset(0, 12);
-        let e2 = bs.subset(4, 128).subset(0, 4);
-
-        assert_eq!(
-            e1.to_string(),
-            "0000000000000000000000000000000000000000000000000000001011010010"
-        );
-        assert_eq!(
-            e2.to_string(),
-            "0000000000000000000000000000000000000000000000000000000000001101"
-        );
-    }
-
-    #[test]
-    fn test_insert_u64_dbse() {
-        let mut bs = DenseBitSetExtended::new();
-        bs.insert_u64(0b1011011101111, 50, 64);
-
-        assert_eq!(bs.to_string(), "00000000000000000000000000000000000000000000000000000000000000000101101110111100000000000000000000000000000000000000000000000000");
-    }
-
-    #[test]
-    fn test_insert_dbse() {
-        let mut bs = DenseBitSetExtended::new();
-        let bs2 =
-            DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(0b1011011101111));
-        bs.insert(&bs2, 60, 13);
-
-        assert_eq!(bs.to_string(), "00000000000000000000000000000000000000000000000000000001011011101111000000000000000000000000000000000000000000000000000000000000");
-    }
+    // Test for README.md source code
 
     #[test]
     fn test_readme() {

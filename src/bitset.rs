@@ -1,3 +1,4 @@
+/// Trait to define the basic functions of a `BitSet`
 pub trait BitSet {
     /// Sets the value of the bit at position `position` to `value`
     fn set_bit(&mut self, position: usize, value: bool);
