@@ -1,5 +1,5 @@
 # rust-dense-bitset
-[![Latest version](https://img.shields.io/badge/crates.io-0.1.1-blue.svg)](https://crates.io/crates/rust-dense-bitset)
+[![Latest version](https://img.shields.io/crates/v/rust-dense-bitset.svg)](https://crates.io/crates/rust-dense-bitset)
 [![Documentation](https://docs.rs/rust-dense-bitset/badge.svg)](https://docs.rs/rust-dense-bitset)
 [![Build Status](https://travis-ci.org/ovheurdrive/rust-dense-bitset.svg?branch=master)](https://travis-ci.org/ovheurdrive/rust-dense-bitset)
 ![Long time support rustc version](https://img.shields.io/badge/rustc-1.31%2B-green.svg)
