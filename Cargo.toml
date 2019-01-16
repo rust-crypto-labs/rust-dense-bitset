@@ -1,6 +1,6 @@
 [package]
 name = "rust-dense-bitset"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Stanislas Plessia <stplessia@gmail.com>", "Rémi Géraud-Stewart <remi.geraud@ens.fr>"]
 license = "MIT"
 edition = "2018"
