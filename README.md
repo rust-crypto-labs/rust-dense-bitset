@@ -44,9 +44,7 @@ println!("{}", bs.subset(3, 64).to_string());
 
 - The data structure does not make use of compression and is therefore not particularly suited to sparse bitsets: in this scenario alternatives such as the [hibitset](https://github.com/slide-rs/hibitset) library can be considered instead.
 
-- An artificial limit at 64 000 bits is currently imposed on `DenseBitSetExtended`.
-
-- `clippy` incorrectly reports issues with "suspicious operators" in the shift operators.
+- `clippy` incorrectly reports issues with "suspicious operators" in the shift operators. (To avoid errors we deactivated suspicious_op_assign_impl lint)
 
 ### Running the tests
 

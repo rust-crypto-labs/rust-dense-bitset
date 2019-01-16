@@ -49,13 +49,7 @@ impl DenseBitSetExtended {
     /// bs.set_bit(127, true); // No additional allocation performed
     /// ```
     ///
-    /// # Panics
-    /// This function will not accept `size` parameters beyond 64000 bits.
     pub fn with_capacity(size: usize) -> Self {
-        assert!(
-            size < 64_000,
-            "(Temporary?) We don't allow bitsets larger than 64k for now."
-        );
         let state: Vec<u64> = Vec::with_capacity(1 + (size >> 6));
         Self { state, size: 0 }
     }

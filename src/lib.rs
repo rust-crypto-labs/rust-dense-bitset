@@ -1,3 +1,6 @@
+#![allow(clippy::suspicious_op_assign_impl)]
+#![allow(clippy::unreadable_literal)]
+
 mod bitset;
 mod u64impl;
 mod vec64impl;
