@@ -30,7 +30,7 @@ impl DenseBitSetExtended {
     /// # use rust_dense_bitset::DenseBitSetExtended;
     /// let bs = DenseBitSetExtended::new();
     /// ```
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             state: vec![],
             size: 0,
@@ -103,7 +103,7 @@ impl DenseBitSetExtended {
     }
 
     /// Returns the size (in bits) of the bitset
-    pub fn get_size(&self) -> usize {
+    pub const fn get_size(&self) -> usize {
         self.size
     }
 

@@ -26,7 +26,7 @@ impl DenseBitSet {
     ///
     /// let mut bs = DenseBitSet::new();
     /// ```
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self { state: 0 }
     }
 
@@ -38,7 +38,7 @@ impl DenseBitSet {
     ///
     /// let bs = DenseBitSet::from_integer(1234567890);
     /// ```
-    pub fn from_integer(i: u64) -> Self {
+    pub const fn from_integer(i: u64) -> Self {
         Self { state: i }
     }
 
@@ -61,7 +61,7 @@ impl DenseBitSet {
     /// This function will panic if an incorrect `base` is provided or if invalid
     /// characters are found when parsing.
     pub fn from_string(s: &str, base: u32) -> Self {
-        assert!(2 <= base && base <= 32, "Only supports base from 2 to 32");
+        assert!((2..=32).contains(&base), "Only supports base from 2 to 32");
         let val = u64::from_str_radix(s, base);
         let res: u64 = val.expect("Failed to parse string");
         Self { state: res }
@@ -77,7 +77,7 @@ impl DenseBitSet {
     ///
     /// assert_eq!(bs.to_integer(), 1234);
     /// ```
-    pub fn to_integer(self) -> u64 {
+    pub const fn to_integer(self) -> u64 {
         self.state
     }
 
@@ -96,7 +96,7 @@ impl DenseBitSet {
     /// # Panics
     /// This function will panic if `length` is zero or if one tries to
     /// access a bit beyond the 64 bit limit (i.e., `position + length > 64`).
-    pub fn extract(self, position: usize, length: usize) -> u64 {
+    pub const fn extract(self, position: usize, length: usize) -> u64 {
         assert!(
             position + length <= 64,
             "This implementation is currently limited to 64 bit bitsets."
@@ -106,7 +106,7 @@ impl DenseBitSet {
             (self.state >> position) & ((1 << length) - 1)
         } else {
             // This special branch is to avoid overflowing when masking
-            (self.state >> position)
+            self.state >> position
         }
     }
 
@@ -159,7 +159,7 @@ impl DenseBitSet {
     /// bs.set_bit(28,false);
     /// bs.all(); // -> false
     /// ```
-    pub fn all(self) -> bool {
+    pub const fn all(self) -> bool {
         self.state == u64::max_value()
     }
 
@@ -177,7 +177,7 @@ impl DenseBitSet {
     /// bs.set_bit(11,false);
     /// bs.any(); // -> false
     /// ```
-    pub fn any(self) -> bool {
+    pub const fn any(self) -> bool {
         self.state > 0
     }
 
@@ -193,7 +193,7 @@ impl DenseBitSet {
     ///
     /// assert!(bs.none());
     /// ```
-    pub fn none(self) -> bool {
+    pub const fn none(self) -> bool {
         !self.any()
     }
 
@@ -210,11 +210,11 @@ impl DenseBitSet {
     ///
     /// assert_eq!(bs2.to_integer(), 0b1000111100000000000000000000000000000000000000000000000000000000);
     /// ```
-    pub fn reverse(self) -> Self {
+    pub const fn reverse(self) -> Self {
         let mut v = self.state;
-        v = ((v >> 1) & (0x5555555555555555 as u64)) | ((v & (0x5555555555555555 as u64)) << 1);
-        v = ((v >> 2) & (0x3333333333333333 as u64)) | ((v & (0x3333333333333333 as u64)) << 2);
-        v = ((v >> 4) & (0x0F0F0F0F0F0F0F0F as u64)) | ((v & (0x0F0F0F0F0F0F0F0F as u64)) << 4);
+        v = ((v >> 1) & 0x5555555555555555_u64) | ((v & 0x5555555555555555_u64) << 1);
+        v = ((v >> 2) & 0x3333333333333333_u64) | ((v & 0x3333333333333333_u64) << 2);
+        v = ((v >> 4) & 0x0F0F0F0F0F0F0F0F_u64) | ((v & 0x0F0F0F0F0F0F0F0F_u64) << 4);
 
         Self {
             state: v.swap_bytes(),
@@ -265,7 +265,7 @@ impl DenseBitSet {
     /// let dbs = DenseBitSet::from_integer(256);
     /// println!("{}", dbs.first_set());
     /// ```
-    pub fn first_set(self) -> u32 {
+    pub const fn first_set(self) -> u32 {
         self.state.trailing_zeros()
     }
 }
