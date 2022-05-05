@@ -109,9 +109,9 @@ mod tests {
     #[test]
     fn test_all_dbs() {
         let mut bs = DenseBitSet::from_integer(u64::max_value());
-        assert_eq!(bs.all(), true);
+        assert!(bs.all());
         bs.set_bit(3, false);
-        assert_eq!(bs.all(), false);
+        assert!(!bs.all());
     }
 
     #[test]
@@ -126,26 +126,26 @@ mod tests {
     #[test]
     fn test_any_dbs() {
         let mut bs = DenseBitSet::from_integer(1234567890);
-        assert_eq!(bs.any(), true);
+        assert!(bs.any());
         bs.reset();
-        assert_eq!(bs.any(), false);
+        assert!(!bs.any());
     }
 
     #[test]
     fn test_any_dbse() {
         let mut bs = DenseBitSetExtended::with_capacity(10);
         bs.set_bit(1234, true);
-        assert_eq!(bs.any(), true);
+        assert!(bs.any());
         bs.reset();
-        assert_eq!(bs.any(), false);
+        assert!(!bs.any());
     }
 
     #[test]
     fn test_none_dbs() {
         let mut bs = DenseBitSet::from_integer(0);
-        assert_eq!(bs.none(), true);
+        assert!(bs.none());
         bs.set_bit(3, true);
-        assert_eq!(bs.none(), false);
+        assert!(!bs.none());
     }
 
     #[test]
@@ -153,9 +153,9 @@ mod tests {
         let mut bs = DenseBitSetExtended::with_capacity(10);
         bs.set_bit(1234, true);
         bs.set_bit(1234, false);
-        assert_eq!(bs.none(), true);
+        assert!(bs.none());
         bs.set_bit(1235, true);
-        assert_eq!(bs.none(), false);
+        assert!(!bs.none());
     }
 
     #[test]
@@ -361,7 +361,7 @@ mod tests {
         let bs =
             DenseBitSetExtended::from_dense_bitset(DenseBitSet::from_integer(1234567890)) << offset;
         let e1 = bs.extract_u64(1 + offset, 63);
-        let e2 = bs.extract_u64(0 + offset, 8);
+        let e2 = bs.extract_u64(offset, 8);
         let e3 = bs.extract_u64(5 + offset, 14);
 
         assert_eq!(e1, 617283945);

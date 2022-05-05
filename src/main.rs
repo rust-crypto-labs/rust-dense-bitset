@@ -1,6 +1,5 @@
 extern crate rust_dense_bitset;
 
-use rust_dense_bitset::BitSet;
 use rust_dense_bitset::DenseBitSet;
 use rust_dense_bitset::DenseBitSetExtended;
 

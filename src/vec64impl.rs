@@ -147,27 +147,28 @@ impl DenseBitSetExtended {
             length
         };
 
-        if actual_length + offset < 64 {
+        match actual_length + offset {
             // Remain within the boundary of an element
-            (self.get(idx) >> offset) & ((1 << actual_length) - 1)
-        } else if actual_length + offset == 64 {
+            l if l < 64 => (self.get(idx) >> offset) & ((1 << actual_length) - 1),
+
             // Special case to avoid masking overflow
-            self.get(idx) >> offset
-        } else {
+            64 => self.get(idx) >> offset,
+
             // Possibly split between neighbour elements
+            _ => {
+                // Number of bits to take from the next element
+                let remainder = actual_length + offset - 64;
 
-            // Number of bits to take from the next element
-            let remainder = actual_length + offset - 64;
+                let lsb = self.state[idx] >> offset;
 
-            let lsb = self.state[idx] >> offset;
-
-            if self.state.len() == idx + 1 {
-                // If there is no next element, assume it is zero
-                lsb
-            } else {
-                // Otherwise get the remaining bits and assemble the response
-                let msb = self.state[idx + 1] & ((1 << remainder) - 1);
-                (msb << (64 - offset)) | lsb
+                if self.state.len() == idx + 1 {
+                    // If there is no next element, assume it is zero
+                    lsb
+                } else {
+                    // Otherwise get the remaining bits and assemble the response
+                    let msb = self.state[idx + 1] & ((1 << remainder) - 1);
+                    (msb << (64 - offset)) | lsb
+                }
             }
         }
     }
@@ -372,8 +373,7 @@ impl DenseBitSetExtended {
                 cur = String::from(ms);
                 size += 64;
             } else {
-                let val = u64::from_str_radix(&cur.to_string(), radix)
-                    .expect("Error while parsing input.");
+                let val = u64::from_str_radix(&cur, radix).expect("Error while parsing input.");
                 state.push(val);
                 size += cur.len() * (log_radix as usize);
                 break;

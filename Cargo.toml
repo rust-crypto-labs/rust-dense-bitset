@@ -1,9 +1,9 @@
 [package]
 name = "rust-dense-bitset"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Stanislas Plessia <stplessia@gmail.com>", "Rémi Géraud-Stewart <remi.geraud@ens.fr>"]
 license = "MIT"
-edition = "2018"
+edition = "2021"
 keywords = ["bit", "bitmask", "bitflags", "flags", "bitset"]
 
 readme = "README.md"
